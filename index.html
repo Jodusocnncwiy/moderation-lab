@@ -1,0 +1,1185 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Jodus調節效果互動實驗室｜外送延遲、熟客與滿意度</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700;900&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<style>
+
+:root{
+  --bg:#FFFFFF;--wash:#F3F0FF;--line:#DDD8F5;--ink:#0A1045;--ink2:#555B7A;--muted:#7C819C;
+  --blue:#6C4BEF;--blue-soft:#DDD8F5;--coral:#D61FA3;--coral-soft:#F9DCF0;--hilite:#F9E900;--deep:#A3127B;--good:#2E9D63;--r:10px;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{font-size:16px}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:"Noto Sans TC","PingFang TC","Microsoft JhengHei",sans-serif;line-height:1.65;font-variant-numeric:tabular-nums}
+button,input,select{font:inherit;color:inherit}
+:focus-visible{outline:3px solid var(--blue);outline-offset:2px}
+header.top{padding:22px clamp(16px,4vw,40px) 0;max-width:1320px;margin:0 auto}
+.brand{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px}
+.brand h1{margin:0;font-size:clamp(1.5rem,2.6vw,2.1rem);font-weight:900;letter-spacing:.02em}
+.brand h1 .eq{font-weight:500;color:var(--blue);font-size:.72em;margin-left:.4em;white-space:nowrap}
+.brand p{margin:0;color:var(--ink2);font-size:.98rem}
+nav.tabs{max-width:1320px;margin:16px auto 0;padding:0 clamp(16px,4vw,40px);display:flex;gap:4px;overflow-x:auto;border-bottom:2px solid var(--line);scrollbar-width:thin}
+nav.tabs button{flex:0 0 auto;border:0;background:none;padding:10px 14px 12px;font-size:1rem;font-weight:500;color:var(--ink2);cursor:pointer;border-bottom:4px solid transparent;margin-bottom:-2px;border-radius:8px 8px 0 0}
+nav.tabs button .n{display:inline-grid;place-items:center;width:1.5em;height:1.5em;border-radius:50%;background:var(--wash);color:var(--blue);font-size:.82em;font-weight:700;margin-right:6px}
+nav.tabs button:hover{background:var(--wash)}
+nav.tabs button[aria-selected="true"]{color:var(--ink);font-weight:700;border-bottom-color:var(--blue)}
+nav.tabs button[aria-selected="true"] .n{background:var(--blue);color:#fff}
+main{max-width:1320px;margin:0 auto;padding:18px clamp(16px,4vw,40px) 40px;display:grid;grid-template-columns:minmax(0,1.35fr) minmax(320px,1fr);gap:24px;align-items:start}
+main.full{grid-template-columns:1fr}
+main.full .stage{display:none}
+.stage{position:sticky;top:10px}
+.statbar{display:flex;flex-wrap:wrap;gap:6px 22px;align-items:baseline;padding:10px 14px;background:var(--wash);border-radius:var(--r) var(--r) 0 0;font-size:.95rem}
+.statbar .lbl{color:var(--muted);font-size:.85rem;margin-right:4px}
+.statbar .big{font-size:1.15rem;font-weight:700}
+.statbar .lineeq{color:var(--blue);font-weight:700;font-size:1.15rem}
+.statbar .c-coral{color:#A3127B}
+.chartwrap{border:1px solid var(--line);border-top:0;border-radius:0 0 var(--r) var(--r);background:#fff;position:relative}
+svg.chart text{paint-order:stroke;stroke:#fff;stroke-width:4px;stroke-linejoin:round}
+svg.chart text.nostroke{stroke:none}
+svg.chart{display:block;width:100%;height:auto;touch-action:none;cursor:crosshair;user-select:none}
+#chart3d{cursor:grab}
+#chart3d.dragging{cursor:grabbing}
+.hint{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;padding:8px 2px 0;font-size:.88rem;color:var(--ink2)}
+.hint kbd{font-family:inherit;background:var(--wash);border:1px solid var(--line);border-radius:5px;padding:0 6px;font-size:.85em}
+.presets{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px;align-items:center}
+.presets .plbl{font-size:.88rem;color:var(--ink2);margin-right:2px}
+.btn{border:1.5px solid var(--line);background:#fff;border-radius:999px;padding:6px 14px;cursor:pointer;font-size:.92rem;min-height:38px}
+.btn:hover{border-color:var(--blue);color:var(--blue)}
+.btn.primary{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn[aria-pressed="true"]{background:var(--coral-soft);border-color:var(--coral);color:#A3127B;font-weight:700}
+.btn.on{background:var(--blue);border-color:var(--blue);color:#fff;font-weight:700}
+.btn.on:hover{color:#fff}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+label.chk{display:flex;gap:8px;align-items:center;cursor:pointer;font-size:.95rem;padding:3px 0}
+label.chk input{width:18px;height:18px;accent-color:var(--blue)}
+input[type=range]{width:100%;accent-color:var(--coral);height:28px}
+.panel{display:none}
+.panel.on{display:block}
+.panel h2{font-size:1.35rem;margin:0 0 6px;font-weight:900}
+.panel h3{font-size:1.05rem;margin:22px 0 6px;font-weight:700}
+.panel p{margin:6px 0}
+.lead{color:var(--ink2)}
+.box{border:1px solid var(--line);border-radius:var(--r);padding:12px 14px;margin:12px 0;background:#fff}
+.box.wash{background:var(--wash);border-color:transparent}
+.box.try{border-left:5px solid var(--coral)}
+.box.try h3{margin-top:0}
+.box.try ol{margin:4px 0;padding-left:1.3em}
+.box.try li{margin:3px 0}
+.box.warn{border:2px solid var(--coral);background:#FDF0F9}
+.tag{display:inline-block;font-size:.8rem;font-weight:700;padding:1px 8px;border-radius:999px;background:var(--coral-soft);color:#A3127B;margin-right:6px;vertical-align:1px}
+.tag.blue{background:var(--blue-soft);color:#4B32B8}
+.num{font-weight:700}
+.c-blue{color:#4B32B8} .c-coral{color:#A3127B} .c-grey{color:var(--ink2)}
+.feedback{font-weight:700;margin-top:6px;min-height:1.6em}
+.feedback.ok{color:var(--good)}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.opt3{display:grid;gap:8px;margin:8px 0}
+.opt3 button{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:8px 14px;cursor:pointer;line-height:1.45}
+.opt3 button:hover{border-color:var(--blue)}
+.opt3 button.pick{border-color:var(--blue);background:var(--wash);font-weight:700}
+.opt3 button.right{border-color:var(--good);background:#E7F6EE}
+.sl-row{display:grid;grid-template-columns:6.5em 1fr 4.2em;gap:8px;align-items:center;margin:6px 0}
+.sl-row output{text-align:right;font-weight:700}
+details.grad{margin:18px 0;border:1.5px dashed #B9AEF5;border-radius:var(--r);padding:4px 14px;background:#FBFAFF}
+details.grad summary{cursor:pointer;font-weight:700;padding:8px 0;color:#4B32B8}
+details.grad[open]{padding-bottom:12px}
+details.fold{margin:12px 0;border:1px solid var(--line);border-radius:var(--r);padding:2px 14px}
+details.fold summary{cursor:pointer;font-weight:700;padding:8px 0;color:var(--ink2)}
+details.fold[open]{padding-bottom:12px}
+table.calc{border-collapse:collapse;width:100%;font-size:.86rem;margin:6px 0}
+table.calc th,table.calc td{padding:4px 6px;text-align:right;border-bottom:1px solid var(--line);white-space:nowrap}
+table.calc th{font-weight:700;color:var(--ink2);background:var(--wash);position:sticky;top:0}
+.scroll{max-height:300px;overflow:auto;border:1px solid var(--line);border-radius:8px}
+table.anova{border-collapse:collapse;width:100%;font-size:.92rem;margin:8px 0}
+table.anova th,table.anova td{border-bottom:1px solid var(--line);padding:6px 8px;text-align:right}
+table.anova th:first-child,table.anova td:first-child{text-align:left}
+table.anova thead th{background:var(--wash);color:var(--ink2)}
+table.anova.txt td,table.anova.txt th{text-align:left}
+table.anova td.sigc{color:#4B32B8;font-weight:700}
+table.anova td.nsc{color:#A3127B;font-weight:700}
+.datatable input{width:4.6em;border:1px solid var(--line);border-radius:6px;padding:2px 6px;text-align:right}
+.datatable td{text-align:center}
+.datatable button{border:0;background:none;color:var(--muted);cursor:pointer;font-size:1.05rem}
+.datatable button:hover{color:var(--coral)}
+.mini{width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#fff}
+.cards2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.bn{background:var(--wash);border-radius:var(--r);padding:8px 14px}
+.bn.wide{grid-column:1/-1}
+.bn .lbl{display:block;color:var(--ink2);font-size:.85rem}
+.bn b{font-size:1.3rem;font-weight:900}
+.bn small{display:block;color:var(--ink2);font-size:.8rem}
+.bn b.c-blue{color:#4B32B8} .bn b.c-grey{color:var(--ink2)} .bn b.c-coral{color:#A3127B}
+.stack{display:flex;height:34px;border-radius:8px;overflow:hidden;margin:6px 0 2px;gap:2px;background:#fff}
+.stack span{display:flex;align-items:center;justify-content:center;color:#fff;font-weight:700;font-size:.8rem;min-width:0;white-space:nowrap;overflow:hidden}
+.stack .u1{background:var(--blue)} .stack .sh{background:#9C86F5} .stack .u2{background:#4B32B8} .stack .un{background:#C9C6D9;color:#0A1045}
+.legend-row{display:flex;flex-wrap:wrap;gap:4px 16px;font-size:.88rem;color:var(--ink2)}
+.sw{display:inline-block;width:14px;height:10px;border-radius:2px;vertical-align:middle;margin-right:6px}
+.seg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden;margin:4px 8px 4px 0}
+.seg button{border:0;background:#fff;padding:5px 14px;cursor:pointer;font-size:.92rem}
+.seg button.on{background:var(--blue);color:#fff;font-weight:700}
+.varlist{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+.varlist span{background:var(--wash);border-radius:999px;padding:2px 12px;font-size:.88rem}
+.varlist span.core{background:var(--blue);color:#fff;font-weight:700}
+.varlist span.noise{background:var(--coral-soft);color:#A3127B}
+.rules li{margin:4px 0}
+.refs p{font-size:.88rem;padding-left:2em;text-indent:-2em;margin:6px 0}
+/* 自測 */
+.quiz{max-width:900px}
+.q{border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.q h3{margin:0 0 10px;font-size:1.05rem}
+.q .opts{display:grid;gap:8px}
+.q .opts button{text-align:left;border:1.5px solid var(--line);background:#fff;border-radius:10px;padding:10px 14px;cursor:pointer;font-size:.98rem;line-height:1.5}
+.q .opts button:hover{border-color:var(--blue)}
+.q .opts button.right{border-color:var(--good);background:#E7F6EE}
+.q .opts button.wrong{border-color:var(--coral);background:var(--coral-soft)}
+.q .exp{display:none;margin-top:10px;padding:10px 14px;background:var(--wash);border-radius:8px}
+.q .exp.on{display:block}
+.score{font-size:1.1rem;font-weight:700;margin:10px 0}
+.qfoot{display:flex;align-items:center;gap:18px;flex-wrap:wrap}
+footer{max-width:1320px;margin:0 auto;padding:0 clamp(16px,4vw,40px) 30px;color:var(--muted);font-size:.85rem}
+/* 第 7 頁 論文 */
+#apaWrap{padding:18px 26px;overflow-y:auto;width:100%}
+.apa-head{display:flex;flex-direction:column;margin-bottom:6px}
+.apa-no{font-weight:700}
+.apa-title{font-style:italic}
+.apa-scroll{overflow-x:auto}
+table.apa{border-collapse:collapse;width:100%;font-size:.98rem;font-variant-numeric:tabular-nums}
+table.apa thead th{border-top:2px solid var(--ink);border-bottom:1px solid var(--ink);padding:6px 8px;font-weight:500;text-align:center;white-space:nowrap}
+table.apa td{padding:6px 8px;text-align:center;white-space:nowrap}
+table.apa td:first-child,table.apa th:first-child{text-align:left}
+table.apa tbody tr:last-child td{border-bottom:2px solid var(--ink)}
+table.apa i,.apa-note i,.para i,.rules i,table.anova i,.bugpara i,#bugExp i,.panel p i{font-family:"Times New Roman",serif;font-size:1.08em}
+.apa-note{font-size:.88rem;margin:6px 0 10px;color:var(--ink)}
+[data-src]{cursor:pointer;border-radius:5px;padding:0 3px;transition:background .12s}
+[data-src]:hover{background:#EDE8FF}
+[data-src].on{background:#F9E900;color:#0A1045}
+.srcbox{background:var(--wash);border-radius:var(--r);padding:10px 14px;font-size:.92rem;min-height:3.2em}
+.srcbox .btn{margin-left:8px;min-height:30px;padding:2px 12px;font-size:.85rem}
+.para-h{margin:14px 0 6px;font-size:1.05rem}
+.para{border-left:5px solid var(--blue);background:#FBFAFF;padding:10px 16px;border-radius:0 var(--r) var(--r) 0;line-height:1.85;margin:0}
+.para .todo{background:#FDF0F9;color:#A3127B;border-radius:5px;padding:0 4px}
+.para.en{font-family:"Times New Roman",serif;line-height:1.7;font-size:1rem}
+.bugpara{line-height:2;background:#fff;border:1px solid var(--line);border-radius:var(--r);padding:8px 12px}
+.bugpara span{cursor:pointer;border-radius:5px;padding:1px 2px}
+.bugpara span:hover{background:var(--wash)}
+.bugpara span.hit{background:var(--coral-soft);color:#A3127B;font-weight:700;text-decoration:underline wavy #D61FA3}
+.bugpara span.okc{background:#E7F6EE}
+
+/* ================= 16:9 投影畫布模式 ================= */
+body.stage{overflow:hidden;background:#E4DFF6;height:100vh;font-size:1rem}
+body.stage #app{position:absolute;left:0;top:0;width:1920px;height:1080px;transform-origin:0 0;background:var(--bg);display:flex;flex-direction:column;overflow:hidden;box-shadow:0 0 0 1px #D3CCF2}
+body.stage label.chk input{width:22px;height:22px}
+body.stage header.top{max-width:none;margin:0;padding:16px 40px 0;display:flex;align-items:flex-end;gap:18px;border-bottom:2px solid var(--line)}
+body.stage .brand{flex-direction:column;gap:0;padding-bottom:12px;flex:0 0 auto}
+body.stage .brand h1{font-size:34px;line-height:1.15}
+body.stage .brand h1 .eq{display:none}
+body.stage .brand p{font-size:18px}
+body.stage nav.tabs{margin:0;padding:0;border-bottom:0;flex:1 1 auto;justify-content:flex-start;overflow:visible;gap:0}
+body.stage nav.tabs button{font-size:19px;padding:10px 6px 12px}
+body.stage .fsbtn{flex:0 0 auto;margin-bottom:12px;font-size:18px}
+body.stage main{max-width:none;margin:0;flex:1 1 auto;min-height:0;padding:18px 40px 10px;grid-template-columns:1120px 1fr;gap:36px;align-items:stretch}
+body.stage main.full{grid-template-columns:1fr}
+body.stage .stage{position:static;display:flex;flex-direction:column;min-height:0}
+body.stage main.full .stage{display:none}
+body.stage .statbar{font-size:20px;padding:10px 18px;gap:6px 30px}
+body.stage .statbar .lbl{font-size:18px}
+body.stage .statbar .big,body.stage .statbar .lineeq{font-size:28px}
+body.stage .chartwrap{flex:1 1 auto;min-height:0;display:flex}
+body.stage svg.chart{width:100%;height:100%}
+body.stage .toolbar{padding-top:6px}
+body.stage .hint{font-size:17px;padding-top:4px}
+body.stage .presets{margin-top:6px;gap:6px}
+body.stage .presets .plbl{font-size:16px}
+body.stage .toolbar .btn{font-size:16px;min-height:34px;padding:3px 12px}
+body.stage .side{min-height:0;overflow-y:auto;padding-right:14px;scrollbar-width:thin}
+body.stage .panel h2{font-size:34px;line-height:1.3}
+body.stage .panel h3{font-size:24px;margin-top:18px}
+body.stage .btn{font-size:19px;min-height:44px}
+body.stage .seg button{font-size:19px;padding:6px 16px}
+body.stage .lead,body.stage .panel p{line-height:1.6}
+body.stage table.anova{font-size:20px}
+body.stage table.calc{font-size:17px}
+body.stage .bn b{font-size:28px}
+body.stage .bn .lbl,body.stage .bn small{font-size:17px}
+body.stage .stack{height:44px}
+body.stage .stack span{font-size:17px}
+body.stage .sl-row{grid-template-columns:6.5em 1fr 4.5em}
+body.stage input[type=range]{height:34px}
+body.stage .varlist span{font-size:17px}
+body.stage .refs p{font-size:17px}
+body.stage footer{max-width:none;margin:0;padding:0 40px 8px;font-size:15px}
+body.stage .quiz{max-width:none;height:100%;overflow-y:auto}
+body.stage #quizBox{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 22px;align-items:start}
+body.stage .q h3{font-size:21px}
+body.stage .q .opts button{font-size:18px;padding:8px 12px}
+body.stage .quiz h2{font-size:30px}
+body.stage .quiz .lead{margin:0 0 4px}
+body.stage .q .exp{margin-top:8px;padding:8px 12px;line-height:1.5;font-size:17px}
+body.stage .q{margin:6px 0;padding:12px 16px}
+body.stage .qfoot .score{margin:4px 0}
+body.stage main.full .side{overflow:visible}
+body.stage table.apa{font-size:21px}
+body.stage .apa-head{font-size:21px}
+body.stage .apa-note{font-size:18px}
+body.stage .srcbox{font-size:18px}
+body.stage .para{font-size:20px}
+body.stage .para-h{font-size:22px}
+body:not(.stage) .fsbtn{display:none}
+@media (max-width:900px){
+  main{grid-template-columns:minmax(0,1fr)}
+  .stage{position:static}
+  .cards2{grid-template-columns:1fr}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+/* 調節效果站補充 */
+.cmp2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+table.anova td.hl{background:#FFFBD0;font-weight:700}
+.pathfig{width:100%;height:auto;display:block}
+.grpseg{display:inline-flex;border:1.5px solid var(--line);border-radius:999px;overflow:hidden}
+.grpseg button{border:0;background:#fff;padding:3px 12px;cursor:pointer;font-size:.9rem}
+.grpseg button.on{background:var(--blue);color:#fff;font-weight:700}
+.grpseg button.on.nm{background:var(--coral)}
+body.stage .grpseg button{font-size:16px;min-height:34px}
+.simbtn{margin:6px 0}
+#typeTable td:first-child{white-space:nowrap;font-weight:700;color:var(--ink2)}
+body.stage #typeTable{font-size:18px}
+#typeTable td,#typeTable th{vertical-align:top}
+</style>
+</head>
+<body>
+<div id="app">
+<header class="top">
+  <div class="brand">
+    <h1>Jodus調節效果互動實驗室 <span class="eq">ŷ = b₀ + b₁X + b₂W + b₃XW</span></h1>
+    <p>外送平台：同樣晚到 10 分鐘，熟客和新客一樣生氣嗎？</p>
+  </div>
+  <nav class="tabs" role="tablist" aria-label="單元步驟">
+    <button role="tab" data-tab="1" aria-selected="true"><span class="n">1</span>先猜一猜</button>
+    <button role="tab" data-tab="2" aria-selected="false"><span class="n">2</span>兩條線</button>
+    <button role="tab" data-tab="3" aria-selected="false"><span class="n">3</span>交互作用項</button>
+    <button role="tab" data-tab="4" aria-selected="false"><span class="n">4</span>連續調節</button>
+    <button role="tab" data-tab="5" aria-selected="false"><span class="n">5</span>中心化</button>
+    <button role="tab" data-tab="6" aria-selected="false"><span class="n">6</span>條件與迷思</button>
+    <button role="tab" data-tab="7" aria-selected="false"><span class="n">7</span>論文怎麼寫</button>
+    <button role="tab" data-tab="8" aria-selected="false"><span class="n">8</span>自我檢測</button>
+  </nav>
+  <button class="btn fsbtn" id="fsBtn" title="全螢幕（F 鍵）">全螢幕</button>
+</header>
+
+<main id="main">
+  <section class="stage" aria-label="圖表">
+    <div class="statbar" id="statbar"></div>
+    <div class="chartwrap">
+      <svg id="chart" class="chart" viewBox="0 0 680 470" role="img" aria-label="散布圖">
+        <defs><clipPath id="plotClip"><rect x="64" y="22" width="594" height="392"/></clipPath>
+        <linearGradient id="wGrad" x1="0" x2="1"><stop offset="0" stop-color="#CFC4FB"/><stop offset="1" stop-color="#2E1C86"/></linearGradient></defs>
+        <g id="layer"></g>
+      </svg>
+      <svg id="chart3d" class="chart" viewBox="0 0 680 470" role="img" aria-label="立體圖：地板是外送延遲與每月訂購次數，高度是滿意度" hidden><g id="layer3"></g></svg>
+      <div id="apaWrap" hidden>
+        <div class="apa-head"><span class="apa-no">表 1</span><span class="apa-title">每月訂購次數調節外送延遲與顧客滿意度關係的階層迴歸分析</span></div>
+        <div class="apa-scroll"><table class="apa" id="apaTable"></table></div>
+        <p class="apa-note" id="apaNote"></p>
+        <div class="apa-head" style="margin-top:4px"><span class="apa-no">表 2</span><span class="apa-title">不同每月訂購次數下，外送延遲的簡單斜率</span></div>
+        <div class="apa-scroll"><table class="apa" id="apaTable2"></table></div>
+        <p class="apa-note" id="apaNote2"></p>
+        <div class="srcbox" id="srcBox"><b>點表格或段落裡的任何數字</b>，這裡會告訴你它是在哪一頁算出來的。</div>
+        <h3 class="para-h">結果段落範例 <span class="tag blue">隨資料即時改寫</span></h3>
+        <div class="para" id="apaPara"></div>
+      </div>
+    </div>
+    <div class="toolbar">
+      <div class="hint" id="hint2d">
+        <span><kbd>點空白處</kbd> 新增</span>
+        <span class="grpseg" id="addGrp"><button data-g="1" class="on">會員</button><button data-g="0">非會員</button></span>
+        <span><kbd>拖曳</kbd> 移動</span>
+        <span><kbd>點兩下</kbd> 刪除</span>
+        <button class="btn" id="delMode" aria-pressed="false">刪除模式（觸控用）</button>
+      </div>
+      <div class="hint" id="hint2dB" hidden>
+        <span><kbd>點空白處</kbd> 新增（訂購次數取目前滑桿值）</span>
+        <span><kbd>拖曳</kbd> 移動</span>
+        <span><kbd>點兩下</kbd> 刪除</span>
+        <span class="grpseg" id="dimSeg"><button data-d="2" class="on">平面圖</button><button data-d="3">立體圖</button></span>
+      </div>
+      <div class="hint" id="hint3d" hidden>
+        <span><kbd>拖曳空白處</kbd> 旋轉</span>
+        <span style="margin-left:4px">視角：</span>
+        <button class="btn" data-view="obl">斜上方</button>
+        <button class="btn" data-view="front">正面</button>
+        <button class="btn" data-view="side">側面</button>
+        <button class="btn" data-view="top">俯視</button>
+        <span class="grpseg" id="dimSeg3"><button data-d="2">平面圖</button><button data-d="3" class="on">立體圖</button></span>
+      </div>
+      <div class="presets" id="presetA" aria-label="載入資料">
+        <span class="plbl">資料：</span>
+        <button class="btn" data-preset="A:normal">60 筆訂單（會員／非會員）</button>
+        <button class="btn" data-preset="A:parallel">沒有交互作用（平行）</button>
+      </div>
+      <div class="presets" id="presetB" aria-label="載入資料" hidden>
+        <span class="plbl">資料：</span>
+        <button class="btn" data-preset="B:normal">60 筆訂單（每月訂購次數）</button>
+        <button class="btn" data-preset="B:noint">沒有交互作用</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="side">
+
+    <!-- ---------- 1 ---------- -->
+    <div class="panel on" data-panel="1">
+      <h2>晚到的代價，每個人都一樣嗎？</h2>
+      <p class="lead">外送平台抽出 60 筆訂單，記錄<strong>外送延遲</strong>（比預估時間晚幾分鐘）和顧客給的<strong>滿意度</strong>（0–100 分）。其中一半是<strong class="c-blue">會員</strong>（圓點），一半是<strong class="c-coral">非會員</strong>（方點）。</p>
+      <div class="box try">
+        <h3>先猜一猜</h3>
+        <p>延遲愈久，滿意度愈低。那麼，延遲對兩群人的打擊一樣大嗎？</p>
+        <div class="opt3" id="guessOpts">
+          <button data-g="0">A. 對會員的打擊比較小（線比較平）</button>
+          <button data-g="1">B. 一樣大，兩條線會平行</button>
+          <button data-g="2">C. 對會員的打擊比較大（線比較陡）</button>
+        </div>
+        <p class="feedback" id="guessFb"></p>
+      </div>
+      <div id="afterReveal" hidden>
+        <div class="cmp2">
+          <div class="bn"><span class="lbl">會員：延遲每多 1 分鐘</span><b class="c-blue" id="r1m"></b><small>紫色線</small></div>
+          <div class="bn"><span class="lbl">非會員：延遲每多 1 分鐘</span><b class="c-coral" id="r1n"></b><small>桃紅色線</small></div>
+        </div>
+        <h3>這就是「調節」</h3>
+        <p>X（外送延遲）對 Y（滿意度）的影響<strong>大小</strong>，會因為第三個變數 W（是否為會員）而不同。W 就叫做<strong>調節變數</strong>（moderator）。</p>
+        <p>換句話說，問題從「延遲會不會降低滿意度？」變成「<strong>對誰</strong>、<strong>在什麼情況下</strong>，延遲的傷害比較大？」。管理上這很有用：同樣的延遲，補償券應該優先發給哪一群顧客？</p>
+        <div class="box try">
+          <h3>動手試試</h3>
+          <ol>
+            <li>點下方「沒有交互作用（平行）」：兩條線幾乎平行，這時就不需要調節變數。</li>
+            <li>回到 60 筆訂單，把幾個延遲很久的方點（非會員）往上拖，看兩條線怎麼慢慢變平行。</li>
+          </ol>
+        </div>
+      </div>
+      <details class="fold"><summary>資料表（可直接修改數字）</summary>
+        <div class="scroll" style="max-height:260px"><table class="calc datatable" id="dataTableA"></table></div>
+      </details>
+    </div>
+
+    <!-- ---------- 2 ---------- -->
+    <div class="panel" data-panel="2">
+      <h2>兩條線不平行，就是調節</h2>
+      <p class="lead">把會員和非會員<strong>分開</strong>各做一條簡單迴歸，比較兩條線的斜率。</p>
+      <p class="box wash" style="font-size:.95rem"><span class="tag blue">名目調節變數</span>第 1～3 頁的調節變數「是否為會員」是<strong>名目變數</strong>（類別），只有兩組，所以每一組畫一條線。第 4 頁起換成<strong>連續</strong>的調節變數，處理方式不同，第 4 頁有對照表。</p>
+      <div class="cmp2">
+        <div class="bn"><span class="lbl">會員的斜率</span><b class="c-blue" id="s2m"></b><small id="s2mi"></small></div>
+        <div class="bn"><span class="lbl">非會員的斜率</span><b class="c-coral" id="s2n"></b><small id="s2ni"></small></div>
+        <div class="bn wide"><span class="lbl">斜率差（會員 − 非會員）</span><b class="c-grey" id="s2d"></b><small>差距愈大，調節效果愈強；差是 0 就是兩條線平行</small></div>
+      </div>
+      <label class="chk"><input type="checkbox" id="showPooled"> 顯示不分組的一條線（灰色虛線）</label>
+      <p id="pooledTxt" style="font-size:.95rem"></p>
+      <h3>平行 vs. 不平行</h3>
+      <div class="cmp2">
+        <div class="box" style="margin:0"><strong>平行</strong>：兩群人的起點可以不同（線的高低），但延遲的傷害一樣大。這叫<strong>主效果</strong>（main effect）。</div>
+        <div class="box" style="margin:0"><strong>不平行</strong>：延遲的傷害大小因人而異。這叫<strong>交互作用</strong>（interaction），也就是調節效果。</div>
+      </div>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>在左下方工具列選「非會員」，然後在右下角延遲很久、滿意度很高的地方新增幾個點，看斜率差縮小。</li>
+          <li>打開「不分組的一條線」：它的斜率介於兩群之間，把差異平均掉了。只報告整體的線，就看不到「對誰影響比較大」。</li>
+        </ol>
+      </div>
+      <p class="lead">兩條線各算各的，雖然直觀，但沒有辦法直接檢定「斜率差是不是 0」。下一頁把兩條線合成一個模型。</p>
+    </div>
+
+    <!-- ---------- 3 ---------- -->
+    <div class="panel" data-panel="3">
+      <h2>一個模型，畫出兩條線</h2>
+      <p class="lead">令 W = 1（會員）、0（非會員），再加入相乘項 X × W：</p>
+      <p style="text-align:center">$$\hat{y}=b_0+b_1X+b_2W+b_3(X\times W)$$</p>
+      <p class="box wash num" id="eq3"></p>
+      <h3>代入 W = 0 和 W = 1</h3>
+      <table class="anova" id="sub3"></table>
+      <ul style="padding-left:1.3em;margin:4px 0">
+        <li><strong>b₁</strong> 是非會員（W = 0）的斜率。</li>
+        <li><strong>b₂</strong> 是延遲 0 分鐘（準時）時，會員比非會員高多少，不是「會員平均高多少」。</li>
+        <li><strong>b₃</strong> 是兩條線的<strong>斜率差</strong>，也就是調節效果本身。</li>
+      </ul>
+      <h3>係數表</h3>
+      <table class="anova" id="coef3"></table>
+      <p class="num" id="b3Txt"></p>
+      <label class="chk"><input type="checkbox" id="showAdd"> 比較：拿掉交互作用項（強迫兩條線平行，虛線）</label>
+      <p class="box wash num" id="dR2A"></p>
+      <div class="box" style="border-left:5px solid var(--blue)">
+        <p><strong>這就是階層迴歸的第 2 步。</strong>論文常把調節分析寫成兩步：第 1 步只放 X 和 W（主效果），第 2 步再加入 X × W，看 <i>R</i>² 增加多少（Δ<i>R</i>²）以及增加量是否顯著。</p>
+        <p>只加入<strong>一個</strong>交互作用項時，Δ<i>R</i>² 的 <i>F</i> 檢定和 b₃ 的 <i>t</i> 檢定是同一件事（<i>F</i> = <i>t</i>²，<i>p</i> 值相同）。階層迴歸多給了一個效果量 Δ<i>R</i>²；調節變數有 3 類以上、交互作用項不只一個時，則一定要看 Δ<i>R</i>² 的 <i>F</i> 檢定。</p>
+      </div>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>比較上表的 b₃ 和上一頁的「斜率差」：兩者完全相同。</li>
+          <li>載入「沒有交互作用（平行）」：b₃ 接近 0、不顯著，ΔR² 也接近 0。</li>
+          <li>打開「拿掉交互作用項」：虛線被迫平行，殘差變大，R² 下降的部分就是 ΔR²。</li>
+        </ol>
+      </div>
+      <details class="grad">
+        <summary>研究所延伸：b₂ 的陷阱與 3 個以上類別</summary>
+        <p>有交互作用項時，b₂ 只是「X = 0 那一點」的組間差。X = 0 如果超出資料範圍（例如 X 是年齡），b₂ 就沒有實際意義；把 X 中心化後，b₂ 才變成「平均延遲時」的組間差（第 5 頁）。</p>
+        <p>調節變數有 m 個類別時，放 m − 1 個虛擬變數，每個都和 X 相乘；檢定「所有斜率都相同」要用 ΔR² 的 F 檢定，不能只看單一個 t。</p>
+      </details>
+    </div>
+
+    <!-- ---------- 4 ---------- -->
+    <div class="panel" data-panel="4">
+      <h2>調節變數是連續的：斜率會「滑動」</h2>
+      <p class="lead">把會員與否換成<strong>每月訂購次數</strong>（W，1～20 次）。訂得愈多，愈是熟客。模型一樣是 ŷ = b₀ + b₁X + b₂W + b₃XW，但 W 可以是任何數字。</p>
+
+      <div class="box">
+        <div class="sl-row"><span>每月訂購次數</span><input type="range" id="wSl" min="1" max="20" step="1" value="8" aria-label="每月訂購次數"><output id="wOut">8 次</output></div>
+      </div>
+      <p class="box wash num" id="ss4"></p>
+      <p style="text-align:center">$$\text{X 的簡單斜率}=b_1+b_3W$$</p>
+      <p>W 每多 1 次，延遲的斜率就改變 b₃。這條「在某個 W 值下，X 對 Y 的斜率」就叫<strong>簡單斜率</strong>（simple slope）。</p>
+      <h3>挑三個點：−1SD、平均、+1SD</h3>
+      <table class="anova" id="ssTable"></table>
+      <p style="font-size:.95rem">左圖三條紫色線由淺到深，就是這三個 W 值的簡單斜率；桃紅色線是你用滑桿選的 W。</p>
+      <h3>名目 vs. 連續：調節變數的兩種處理方式</h3>
+      <table class="anova txt" id="typeTable">
+        <thead><tr><th></th><th>名目調節變數（第 1～3 頁）</th><th>連續調節變數（第 4～5 頁）</th></tr></thead>
+        <tbody>
+          <tr><td>例子</td><td>會員／非會員、性別、地區、通路</td><td>每月訂購次數、年資、量表分數</td></tr>
+          <tr><td>放進模型前</td><td>轉成<strong>虛擬變數</strong>（0／1）；k 類放 k − 1 個，沒放的那一類是參照組；通常<strong>不中心化</strong></td><td>直接使用，建議先<strong>平均數中心化</strong>（第 5 頁）</td></tr>
+          <tr><td>交互作用項</td><td>X × 每個虛擬變數，共 k − 1 個</td><td>X × W，1 個</td></tr>
+          <tr><td>b₁ 的意義</td><td>參照組（D = 0）的斜率</td><td>W = 0（中心化後為 W 平均數）時的斜率</td></tr>
+          <tr><td>b₃ 的意義</td><td>該組和參照組的<strong>斜率差</strong></td><td>W 每多 1 單位，斜率<strong>改變多少</strong></td></tr>
+          <tr><td>檢定調節效果</td><td>2 類：b₃ 的 <i>t</i>；3 類以上：Δ<i>R</i>² 的 <i>F</i>（所有斜率都相同嗎？）</td><td>b₃ 的 <i>t</i>（等於 Δ<i>R</i>² 的 <i>F</i>）</td></tr>
+          <tr><td>顯著後怎麼說明</td><td>算出<strong>每一組</strong>的斜率，逐組說明</td><td>挑點（−1SD、平均、+1SD）的簡單斜率，或 Johnson–Neyman 區間</td></tr>
+          <tr><td>交互作用圖</td><td>每一組一條線</td><td>挑三個 W 值，各畫一條線</td></tr>
+          <tr><td>常見錯誤</td><td>把類別直接編成 1、2、3 當連續變數放進去</td><td>用中位數把 W 切成「高、低」兩組，再當名目變數分析：丟失資訊、降低檢定力（MacCallum et al., 2002）</td></tr>
+        </tbody>
+      </table>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>把滑桿從 1 拉到 20，看桃紅色線從很陡慢慢變平。找找看大約從幾次開始，斜率不再顯著。</li>
+          <li>按工具列的「立體圖」，旋轉看看：有交互作用時，平面是<strong>扭曲</strong>的，不同 W 位置的斜率不一樣。</li>
+          <li>載入「沒有交互作用」：三條線平行，立體圖變回平整的平面。</li>
+        </ol>
+      </div>
+      <details class="grad" id="jnGrad">
+        <summary>研究所延伸：Johnson–Neyman 顯著區間</summary>
+        <p>挑 −1SD、+1SD 是約定俗成，不一定有理論意義。Johnson–Neyman 法改成算出<strong>所有</strong> W 值的簡單斜率和信賴區間，找出斜率由顯著轉為不顯著的分界點（Bauer &amp; Curran, 2005）。也有研究建議搭配立體的迴歸平面來呈現交互作用（Finsaas &amp; Goldstein, 2021）。</p>
+        <svg class="mini" id="jnPlot" viewBox="0 0 420 230" aria-label="簡單斜率與信賴區間隨 W 變化"></svg>
+        <p class="num" id="jnTxt"></p>
+        <p style="text-align:center">$$SE(b_1+b_3W)=\sqrt{\operatorname{Var}(b_1)+W^2\operatorname{Var}(b_3)+2W\operatorname{Cov}(b_1,b_3)}$$</p>
+      </details>
+      <details class="fold"><summary>資料表（可直接修改數字）</summary>
+        <div class="scroll" style="max-height:260px"><table class="calc datatable" id="dataTableB"></table></div>
+      </details>
+    </div>
+
+    <!-- ---------- 5 ---------- -->
+    <div class="panel" data-panel="5">
+      <h2>中心化：換個原點看係數</h2>
+      <p class="lead">把 X 和 W 都減去平均數再相乘，叫做<strong>平均數中心化</strong>（mean centering）。它不會改變模型的預測，只會改變「X = 0、W = 0」指的是哪裡。</p>
+      <table class="anova" id="cenTable"></table>
+      <p style="font-size:.95rem">黃底：中心化前後完全相同的數字。</p>
+      <h3>b₁ 的意義換了</h3>
+      <p id="cenTxt"></p>
+      <p>左圖灰色虛線是「W = 0」時的斜率，也就是<strong>未中心化</strong>的 b₁；紫色實線是「W = 平均數」時的斜率，也就是<strong>中心化後</strong>的 b₁。資料裡沒有人每月訂 0 次，所以灰線是在資料範圍外推出來的。</p>
+      <h3>VIF 為什麼下降？</h3>
+      <p>X、W 都是正數時，X × W 會和 X、W 高度相關，VIF 很高。中心化後相關變小，VIF 下降。但 b₃ 的 t 值和 <i>p</i> 值<strong>完全不變</strong>，所以中心化是為了<strong>好解讀</strong>，不是為了「解決共線性」（Aiken &amp; West, 1991）。</p>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>對照表格：b₃、它的 <i>t</i> 和 <i>R</i>² 前後一樣，b₁、b₂ 和 VIF 不一樣。</li>
+          <li>回第 4 頁把滑桿拉到平均數（約 8 次），簡單斜率剛好等於中心化後的 b₁。</li>
+        </ol>
+      </div>
+    </div>
+
+    <!-- ---------- 6 ---------- -->
+    <div class="panel" data-panel="6">
+      <h2>交互作用很難抓：檢定力與迷思</h2>
+      <p class="lead">左圖依設定的「真實效果」重複抽樣，比較不同樣本數下，<strong>主效果</strong>和<strong>交互作用</strong>被檢定出來（<i>p</i> &lt; .05）的比例，也就是檢定力。</p>
+      <p style="margin:6px 0">交互作用的真實大小：<span class="seg" id="effSeg"><button data-b="0.09" class="on">同第 4 頁（b₃ = 0.09）</button><button data-b="0.03">較小（b₃ = 0.03）</button></span></p>
+      <p class="simbtn"><button class="btn primary" id="simBtn">▶ 每種樣本數模擬 400 次</button></p>
+      <p class="num" id="simTxt"></p>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>先用「同第 4 頁」模擬：n = 60 時交互作用大多抓得到，但檢定力仍比主效果低。</li>
+          <li>切換到「較小（b₃ = 0.03）」再模擬：這比較接近許多實證研究的情況，連 n = 240 都不容易抓到。</li>
+          <li>多按幾次「再模擬一次」：每次結果會有一點差異，這就是抽樣變異。</li>
+        </ol>
+      </div>
+      <div class="box wash"><p>同一筆資料裡，交互作用的效果通常比主效果小，估計也比較不穩定。有模擬研究發現，樣本數在 100 以下時，有 11%～45% 的交互作用估計值<strong>正負號是錯的</strong>（Castillo et al., 2026）。規劃研究時，最好先為交互作用做檢定力分析（Baranger et al., 2023）。</p></div>
+      <h3>調節 vs. 中介</h3>
+      <svg class="mini" id="pathFig" viewBox="0 0 420 200" aria-label="調節與中介的路徑圖"></svg>
+      <table class="anova txt">
+        <thead><tr><th></th><th>調節（moderation）</th><th>中介（mediation）</th></tr></thead>
+        <tbody>
+          <tr><td>問的問題</td><td><strong>對誰、何時</strong>效果比較強？</td><td>效果<strong>透過什麼</strong>傳遞？</td></tr>
+          <tr><td>第三個變數</td><td>W 改變 X→Y 的強度</td><td>M 是 X 造成的結果，再影響 Y</td></tr>
+          <tr><td>檢定的東西</td><td>交互作用項 b₃</td><td>間接效果 a × b</td></tr>
+        </tbody>
+      </table>
+      <h3>常見迷思</h3>
+      <ul style="padding-left:1.3em;margin:4px 0">
+        <li><strong>「交互作用顯著了，主效果就不用看」</strong>：主效果（b₁）變成「W = 0 時的斜率」，要搭配中心化或簡單斜率解讀，不能直接當成「平均效果」。</li>
+        <li><strong>「某一組不顯著、另一組顯著，所以有調節」</strong>：兩組的 <i>p</i> 一個 &lt; .05、一個 &gt; .05，不等於兩組斜率有差異，一定要檢定 b₃。</li>
+        <li><strong>「連續的調節變數先切成高低兩組比較簡單」</strong>：用中位數切組會丟掉資訊、降低檢定力，也可能產生誤導的結果（MacCallum et al., 2002）。保留連續變數，用簡單斜率或 Johnson–Neyman 說明。</li>
+        <li><strong>「線性模型一定可信」</strong>：真實關係若是曲線，交互作用項可能抓到假的效果（Simonsohn, 2024）。先畫散布圖，看看是不是直線。</li>
+      </ul>
+      <h3>參考文獻</h3>
+      <div class="refs">
+        <p>Baranger, D. A. A., Finsaas, M. C., Goldstein, B. L., Vize, C. E., Lynam, D. R., &amp; Olino, T. M. (2023). Tutorial: Power analyses for interaction effects in cross-sectional regressions. <i>Advances in Methods and Practices in Psychological Science, 6</i>(3), 1–13. https://doi.org/10.1177/25152459231187531</p>
+        <p>MacCallum, R. C., Zhang, S., Preacher, K. J., &amp; Rucker, D. D. (2002). On the practice of dichotomization of quantitative variables. <i>Psychological Methods, 7</i>(1), 19–40. https://doi.org/10.1037/1082-989X.7.1.19</p>
+        <p>Castillo, A., Miller, J. D., Vize, C., Baranger, D. A. A., &amp; Lynam, D. R. (2026). When do interaction/moderation effects stabilize in linear regression? <i>Advances in Methods and Practices in Psychological Science, 9</i>(1), 1–14. https://doi.org/10.1177/25152459251407860</p>
+        <p>Simonsohn, U. (2024). Interacting with curves: How to validly test and probe interactions in the real (nonlinear) world. <i>Advances in Methods and Practices in Psychological Science, 7</i>(1), 1–22. https://doi.org/10.1177/25152459231207787</p>
+      </div>
+    </div>
+
+    <!-- ---------- 7 ---------- -->
+    <div class="panel" data-panel="7">
+      <h2>論文怎麼寫：報告調節效果</h2>
+      <p class="lead">左邊是 APA 第七版格式的兩階段階層迴歸表（自變項已中心化）、簡單斜率表和結果段落，數字隨第 4 頁的資料即時更新。</p>
+      <div class="box try">
+        <h3>先猜一猜：這段話哪裡寫錯了？</h3>
+        <p style="font-size:.92rem;color:var(--ink2)">以 60 筆訂單的資料為例，下面這段有 <b>4 句</b>寫錯。點你覺得有問題的句子。</p>
+        <p class="bugpara" id="bugPara"></p>
+        <p class="feedback" id="bugFb"></p>
+        <div id="bugExp"></div>
+        <p><button class="btn" id="bugReset">重新找一次</button> <button class="btn" id="bugShow">直接看答案</button></p>
+      </div>
+      <h3>交互作用圖</h3>
+      <svg class="mini" id="apaFig" viewBox="0 0 420 270" aria-label="交互作用圖"></svg>
+      <p style="font-size:.92rem"><b>圖 1</b>　<i>每月訂購次數對外送延遲與滿意度關係的調節效果</i>。線為 −1SD、平均、+1SD 三個訂購次數下的預測值。</p>
+      <h3>要報告哪些東西？</h3>
+      <ol class="rules">
+        <li>分析方法：階層迴歸的每一步放了哪些變數；是否中心化，以及交互作用項怎麼建立。</li>
+        <li>交互作用項的 <i>B</i>、<i>SE</i>、<i>t</i>、<i>p</i>、95% CI，以及加入它之後的 Δ<i>R</i>²。</li>
+        <li>交互作用顯著時，用簡單斜率（或 Johnson–Neyman 區間）說明<strong>方向</strong>：W 高時比較強，還是比較弱。</li>
+        <li>一張交互作用圖，縱軸寫清楚依變項與單位。</li>
+      </ol>
+      <h3>常見錯誤對照</h3>
+      <table class="anova txt">
+        <thead><tr><th>✗ 容易寫錯</th><th>✓ 建議寫法</th></tr></thead>
+        <tbody>
+          <tr><td>訂購次數「導致」延遲的影響變小</td><td>訂購次數<strong>調節</strong>了延遲與滿意度的關係；橫斷面資料不寫因果</td></tr>
+          <tr><td>只寫「交互作用顯著」</td><td>加上簡單斜率，說明熟客的斜率比較平</td></tr>
+          <tr><td>熟客 <i>p</i> = .07、新客 <i>p</i> &lt; .001，所以有調節</td><td>調節要看 b₃ 的檢定，而不是比較兩個 <i>p</i></td></tr>
+          <tr><td>主效果 <i>B</i> = −0.66，表示延遲平均降低 0.66 分</td><td>中心化後，−0.66 是<strong>平均訂購次數</strong>的顧客的斜率</td></tr>
+        </tbody>
+      </table>
+      <div class="box try">
+        <h3>動手試試</h3>
+        <ol>
+          <li>點左下方「沒有交互作用」：段落自動改寫成「調節效果未達顯著」，表 2 的三個斜率幾乎一樣。</li>
+          <li>點表 2 的任一個數字，看它是第幾頁算出來的。</li>
+        </ol>
+      </div>
+      <details class="grad">
+        <summary>研究所延伸：有控制變數時，三步驟怎麼排</summary>
+        <table class="anova txt">
+          <thead><tr><th>步驟</th><th>放入的變數</th><th>回答的問題</th></tr></thead>
+          <tbody>
+            <tr><td>第 1 步</td><td>控制變數（例如訂單金額、顧客年齡）</td><td>控制變數解釋了多少？</td></tr>
+            <tr><td>第 2 步</td><td>X、W（中心化）</td><td>控制之後，主效果多解釋了多少（Δ<i>R</i>²）？</td></tr>
+            <tr><td>第 3 步</td><td>X × W</td><td>交互作用再多解釋多少（Δ<i>R</i>²）？是否顯著？</td></tr>
+          </tbody>
+        </table>
+        <p>表格每一欄是一個模型，最下方列出各步的 <i>R</i>²、Δ<i>R</i>²、<i>F</i> 改變量和 <i>p</i>。名目的控制變數同樣要先轉成虛擬變數。調節變數是 3 類以上的名目變數時，第 3 步會一次放入 k − 1 個交互作用項，判斷調節效果要看這一步的 Δ<i>R</i>² 檢定。</p>
+      </details>
+      <details class="grad">
+        <summary>研究所延伸：英文寫法</summary>
+        <p class="para en" id="apaParaEn"></p>
+        <p>很多研究用 PROCESS（Model 1）跑調節效果，結果和這裡的迴歸完全相同；它多提供了 Johnson–Neyman 區間與拔靴法信賴區間（Hayes, 2022）。</p>
+      </details>
+      <h3>參考文獻</h3>
+      <div class="refs">
+        <p>Aiken, L. S., &amp; West, S. G. (1991). <i>Multiple regression: Testing and interpreting interactions</i>. Sage.</p>
+        <p>American Psychological Association. (2020). <i>Publication manual of the American Psychological Association</i> (7th ed.). https://doi.org/10.1037/0000165-000</p>
+        <p>Bauer, D. J., &amp; Curran, P. J. (2005). Probing interactions in fixed and multilevel regression: Inferential and graphical techniques. <i>Multivariate Behavioral Research, 40</i>(3), 373–400. https://doi.org/10.1207/s15327906mbr4003_5</p>
+        <p>Finsaas, M. C., &amp; Goldstein, B. L. (2021). Do simple slopes follow-up tests lead us astray? Advancements in the visualization and reporting of interactions. <i>Psychological Methods, 26</i>(1), 38–60. https://doi.org/10.1037/met0000266</p>
+        <p>Hayes, A. F. (2022). <i>Introduction to mediation, moderation, and conditional process analysis: A regression-based approach</i> (3rd ed.). Guilford Press.</p>
+      </div>
+    </div>
+
+    <!-- ---------- 8 ---------- -->
+    <div class="panel quiz" data-panel="8">
+      <h2>自我檢測</h2>
+      <p class="lead">選一個答案，馬上就會看到解析。第 2、3、5 題很多人第一次會選錯，錯了也沒關係，看解析就好。</p>
+      <div id="quizBox"></div>
+      <div class="qfoot"><p class="score" id="score"></p><button class="btn" id="quizReset">重新作答</button></div>
+    </div>
+  </section>
+</main>
+
+<footer>教學用資料：外送平台 60 筆訂單的外送延遲、會員身分、每月訂購次數與滿意度為虛構數字；「熟客對延遲比較寬容」為教學設定，僅供課堂示範。</footer>
+</div>
+
+<script>
+(() => {
+"use strict";
+const $=id=>document.getElementById(id);
+/* ================= 統計函數 ================= */
+function lgamma(z){
+  const g=7,c=[0.99999999999980993,676.5203681218851,-1259.1392167224028,771.32342877765313,-176.61502916214059,12.507343278686905,-0.13857109526572012,9.9843695780195716e-6,1.5056327351493116e-7];
+  if(z<0.5) return Math.log(Math.PI/Math.abs(Math.sin(Math.PI*z)))-lgamma(1-z);
+  z-=1;let x=c[0];for(let i=1;i<g+2;i++)x+=c[i]/(z+i);
+  const t=z+g+0.5;return 0.5*Math.log(2*Math.PI)+(z+0.5)*Math.log(t)-t+Math.log(x);
+}
+function betacf(a,b,x){
+  const MAXIT=300,EPS=3e-14,FPMIN=1e-300;
+  let qab=a+b,qap=a+1,qam=a-1,c=1,d=1-qab*x/qap;
+  if(Math.abs(d)<FPMIN)d=FPMIN;d=1/d;let h=d;
+  for(let m=1;m<=MAXIT;m++){
+    const m2=2*m;let aa=m*(b-m)*x/((qam+m2)*(a+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;h*=d*c;
+    aa=-(a+m)*(qab+m)*x/((a+m2)*(qap+m2));
+    d=1+aa*d;if(Math.abs(d)<FPMIN)d=FPMIN;c=1+aa/c;if(Math.abs(c)<FPMIN)c=FPMIN;d=1/d;
+    const del=d*c;h*=del;if(Math.abs(del-1)<EPS)break;
+  }
+  return h;
+}
+function ibeta(x,a,b){
+  if(x<=0)return 0;if(x>=1)return 1;
+  const bt=Math.exp(lgamma(a+b)-lgamma(a)-lgamma(b)+a*Math.log(x)+b*Math.log(1-x));
+  return x<(a+1)/(a+b+2)? bt*betacf(a,b,x)/a : 1-bt*betacf(b,a,1-x)/b;
+}
+const fPval=(f,d1,d2)=> f<=0?1:ibeta(d2/(d2+d1*f),d2/2,d1/2);
+const tPval2=(t,df)=> ibeta(df/(df+t*t),df/2,0.5);
+function tCrit(df,alpha=0.05){let lo=0,hi=1000;for(let i=0;i<200;i++){const m=(lo+hi)/2;tPval2(m,df)>alpha?lo=m:hi=m;}return (lo+hi)/2;}
+function fCrit(d1,d2,alpha=0.05){let lo=0,hi=1000;for(let i=0;i<200;i++){const m=(lo+hi)/2;fPval(m,d1,d2)>alpha?lo=m:hi=m;}return (lo+hi)/2;}
+function fpdf(x,d1,d2){if(x<=0)return d1<2?Infinity:(d1===2?1:0);return Math.exp(lgamma((d1+d2)/2)-lgamma(d1/2)-lgamma(d2/2)+(d1/2)*Math.log(d1/d2)+(d1/2-1)*Math.log(x)-((d1+d2)/2)*Math.log(1+d1*x/d2));}
+
+function invert(A){
+  const n=A.length,M=A.map((r,i)=>[...r,...Array.from({length:n},(_,j)=>i===j?1:0)]);
+  for(let c=0;c<n;c++){
+    let p=c;for(let r=c+1;r<n;r++)if(Math.abs(M[r][c])>Math.abs(M[p][c]))p=r;
+    if(Math.abs(M[p][c])<1e-10)return null;
+    [M[c],M[p]]=[M[p],M[c]];const pv=M[c][c];for(let j=0;j<2*n;j++)M[c][j]/=pv;
+    for(let r=0;r<n;r++)if(r!==c){const f=M[r][c];if(f)for(let j=0;j<2*n;j++)M[r][j]-=f*M[c][j];}
+  }
+  return M.map(r=>r.slice(n));
+}
+/* 一般最小平方法：y 對多個自變數（含截距） */
+function ols(y,cols){
+  const n=y.length,k=cols.length,p=k+1,R={ok:false,n,k};
+  if(n<p+1)return R;
+  const X=y.map((_,i)=>[1,...cols.map(c=>c[i])]);
+  const XtX=Array.from({length:p},(_,a)=>Array.from({length:p},(_,b)=>X.reduce((s,r)=>s+r[a]*r[b],0)));
+  const inv=invert(XtX);if(!inv)return R;
+  const Xty=Array.from({length:p},(_,a)=>X.reduce((s,r,i)=>s+r[a]*y[i],0));
+  const b=inv.map(r=>r.reduce((s,v,j)=>s+v*Xty[j],0));
+  const yhat=X.map(r=>r.reduce((s,v,j)=>s+v*b[j],0)),res=y.map((v,i)=>v-yhat[i]);
+  const ybar=y.reduce((s,v)=>s+v,0)/n,SST=y.reduce((s,v)=>s+(v-ybar)**2,0),SSE=res.reduce((s,v)=>s+v*v,0),SSR=Math.max(0,SST-SSE);
+  const dfE=n-p,MSE=SSE/dfE,se=inv.map((r,j)=>Math.sqrt(Math.max(0,MSE*r[j]))),tc=tCrit(dfE);
+  const t=b.map((v,j)=>se[j]>0?v/se[j]:Infinity),pv=t.map(v=>Number.isFinite(v)?tPval2(Math.abs(v),dfE):0);
+  const R2=SST>0?SSR/SST:NaN,adj=1-(1-R2)*(n-1)/dfE,F=MSE>0?(SSR/k)/MSE:Infinity,pF=MSE>0?fPval(F,k,dfE):0;
+  return Object.assign(R,{ok:true,b,se,t,p:pv,tc,ciL:b.map((v,j)=>v-tc*se[j]),ciU:b.map((v,j)=>v+tc*se[j]),yhat,res,ybar,SST,SSE,SSR,dfE,MSE,se_e:Math.sqrt(MSE),R2,adj,F,pF,inv});
+}
+const mean=a=>a.reduce((s,v)=>s+v,0)/a.length;
+const sd=a=>{const m=mean(a);return Math.sqrt(a.reduce((s,v)=>s+(v-m)**2,0)/(a.length-1));};
+const corr=(a,b)=>{const ma=mean(a),mb=mean(b);let sab=0,saa=0,sbb=0;a.forEach((v,i)=>{sab+=(v-ma)*(b[i]-mb);saa+=(v-ma)**2;sbb+=(b[i]-mb)**2;});return sab/Math.sqrt(saa*sbb);};
+
+
+const clamp=(v,a,b)=>Math.min(b,Math.max(a,v));
+
+/* ================= 資料 ================= */
+const A0=[1.333,-0.985,-0.1,-1.181,-1.737,-2.056,0.26,-0.096,0.469,0.311,-0.586,0.877,1.499,0.566,0.369,0.861,0.946,0.695,0.477,0.747,1.392,-0.468,-1.784,-0.014,-0.661,2.551,-1.129,-1.764,-0.632,1.427,0.696,1.786,0.156,0.207,-0.709,-0.487,0.274,-1.581,0.767,-0.343,-0.431,-0.824,0.48,-0.807,0.525,-0.242,-0.475,0.784,0.766,-1.002,-1.076,1.397,-0.546,-0.8,-0.246,1.037,0.4,0.998,-1.405,-0.889],A1=[0.739,0.83,1.084,-0.51,-0.185,-0.025,-1.313,0.394,0.955,-1.57,1.237,-1.089,-0.748,-0.104,-0.31,1.499,0.663,0.093,-0.603,-0.893,0.286,1.385,0.488,-1.628,-1.239,0.527,-0.293,0.512,-1.54,0.056,-1.02,1.652,1.632,0.829,-0.857,1.51,0.135,1.286,0.554,-0.48,-2.294,0.892,-0.102,-0.513,0.345,0.912,-0.558,-1.762,0.225,-0.695,-2.094,0.532,-0.516,0.24,0.134,-0.305,1.254,-1.289,0.087,1.569],A2=[1.164,-0.121,-0.426,-1.287,0.521,0.359,-0.283,-1.39,-2.524,-0.124,0.134,0.592,0.825,-1.349,0.752,-0.879,0.155,0.831,0.191,-0.382,-0.632,0.605,-0.924,-0.239,1.115,0.295,-0.689,0.003,0.574,-0.509,-2.403,-0.273,-1.179,2.04,0.284,-0.782,-0.239,0.293,-0.569,1.379,-0.291,-0.677,0.259,-0.022,-1.276,0.84,1.813,2.425,-0.497,-0.838,1.635,0.202,0.001,0.004,0.135,-1.049,2.152,-0.748,-0.103,1.124];
+const B0=[-1.489,0.024,-1.057,0.668,1.331,-0.456,1.771,-0.021,-0.89,-0.179,1.111,0.038,1.018,1.504,-1.137,1.611,0.373,-1.712,-0.193,0.686,-0.442,-1.44,0.919,0.854,1.425,0.534,0.854,-0.351,0.118,-0.56,-0.769,1.829,-1.477,0.864,1.88,-0.086,-0.499,-0.816,0.693,-0.722,1.178,-0.819,-1.602,-0.737,-0.886,-0.577,0.713,-1.223,0.454,0.954,0.192,0.499,-1.352,-0.136,1.234,-0.649,-0.772,-1.695,0.207,-0.789],B1=[-0.701,0.968,-1.02,-0.636,0.134,0.78,-1.26,0.171,0.515,-0.566,-0.847,-0.325,-1.819,0.5,-0.167,0.79,1.103,-0.912,0.493,0.254,0.204,0.096,0.056,2.302,-0.15,-0.27,-1.183,0.061,-0.167,0.357,0.17,1.002,-0.022,1.846,-0.818,2.794,-1.051,-1.12,-0.442,-0.345,0.237,0.626,0.333,0.465,-0.485,-0.474,-1.693,-0.927,0.721,-1.935,-2.231,1.664,0.414,1.16,-1.261,0.022,-0.278,1.481,0.669,0.719],B2=[0.946,1.591,-1.855,0.08,1.401,-0.193,0.288,-0.109,-0.588,-0.302,0.497,-1.099,-0.803,-0.528,0.696,-0.838,-1.459,-0.832,0.127,0.11,0.245,1.574,-1.35,0.333,1.304,-0.915,-1.527,1.571,0.57,0.223,-0.284,0.525,0.105,-0.065,-0.305,0.03,-0.634,0.513,0.763,0.776,-0.704,-2.554,-0.639,1.216,-0.327,0.044,-0.721,0.19,0.872,0.172,2.5,-2.218,-1.634,0.952,0.254,1.413,-0.258,-0.611,0.721,0.748];
+let uid=0;
+function genA(b0,b1,b2,b3){return A0.map((z,i)=>{const x=clamp(Math.round(12+7*z),0,35),m=i%2;return {x,m,y:clamp(Math.round(b0+b1*x+b2*m+b3*x*m+6*A2[i]),0,100),id:++uid};});}
+function genB(b0,b1,b2,b3){return B0.map((z,i)=>{const x=clamp(Math.round(12+7*z),0,35),w=clamp(Math.round(8+4*B1[i]),1,20);return {x,w,y:clamp(Math.round(b0+b1*x+b2*w+b3*x*w+6*B2[i]),0,100),id:++uid};});}
+const PRE={'A:normal':[86,-1.2,2,.7],'A:parallel':[86,-.85,2,0],'B:normal':[86,-1.4,.1,.09],'B:noint':[86,-.68,.1,0]};
+const PNAME={'A:normal':'會員／非會員','A:parallel':'平行','B:normal':'訂購次數','B:noint':'沒有交互作用',edit:'已修改'};
+
+/* ================= 分析 ================= */
+function anaA(pts){
+  const S={n:pts.length,ok:false};
+  const x=pts.map(p=>p.x),m=pts.map(p=>p.m),y=pts.map(p=>p.y);
+  const g1=pts.filter(p=>p.m===1),g0=pts.filter(p=>p.m===0);
+  if(g1.length<3||g0.length<3)return S;
+  const f=ols(y,[x,m,x.map((v,i)=>v*m[i])]),add=ols(y,[x,m]),pool=ols(y,[x]);
+  const r1=ols(g1.map(p=>p.y),[g1.map(p=>p.x)]),r0=ols(g0.map(p=>p.y),[g0.map(p=>p.x)]);
+  if(!f.ok||!add.ok||!r1.ok||!r0.ok)return S;
+  const dR2=f.R2-add.R2,Fch=(dR2/1)/((1-f.R2)/f.dfE);
+  return Object.assign(S,{ok:true,f,add,pool,r1,r0,dR2,Fch,pch:fPval(Fch,1,f.dfE)});
+}
+function vifs(cols){return cols.map((c,j)=>{const o=cols.filter((_,k)=>k!==j),m=ols(c,o);return m.ok?1/(1-m.R2):NaN;});}
+function anaB(pts){
+  const S={n:pts.length,ok:false};if(pts.length<6)return S;
+  const x=pts.map(p=>p.x),w=pts.map(p=>p.w),y=pts.map(p=>p.y),mx=mean(x),mw=mean(w),sw=sd(w);
+  const xw=x.map((v,i)=>v*w[i]),xc=x.map(v=>v-mx),wc=w.map(v=>v-mw),xcwc=xc.map((v,i)=>v*wc[i]);
+  const raw=ols(y,[x,w,xw]),cen=ols(y,[xc,wc,xcwc]),add=ols(y,[xc,wc]);
+  if(!raw.ok||!cen.ok||!add.ok)return S;
+  const V=raw.inv.map(r=>r.map(v=>v*raw.MSE));
+  const slope=W=>{const b=raw.b[1]+raw.b[3]*W,se=Math.sqrt(Math.max(0,V[1][1]+W*W*V[3][3]+2*W*V[1][3])),t=b/se,p=tPval2(Math.abs(t),raw.dfE);return {W,b,se,t,p,lo:b-raw.tc*se,hi:b+raw.tc*se};};
+  const tc=raw.tc,qa=raw.b[3]**2-tc*tc*V[3][3],qb=2*(raw.b[1]*raw.b[3]-tc*tc*V[1][3]),qc=raw.b[1]**2-tc*tc*V[1][1],disc=qb*qb-4*qa*qc;
+  let jn=null;if(disc>=0&&Math.abs(qa)>1e-12){jn=[(-qb-Math.sqrt(disc))/(2*qa),(-qb+Math.sqrt(disc))/(2*qa)].sort((a,b)=>a-b);}
+  const dR2=cen.R2-add.R2,Fch=dR2/((1-cen.R2)/cen.dfE);
+  return Object.assign(S,{ok:true,x,w,y,mx,mw,sw,raw,cen,add,V,slope,jn,qa,dR2,Fch,pch:fPval(Fch,1,cen.dfE),
+    vifRaw:vifs([x,w,xw]),vifCen:vifs([xc,wc,xcwc]),wmin:Math.min(...w),wmax:Math.max(...w)});
+}
+
+/* ================= 狀態 ================= */
+const st={A:genA(...PRE['A:normal']),B:genB(...PRE['B:normal']),preA:'A:normal',preB:'B:normal',tab:1,revealed:false,addG:1,Wsel:8,dim:2,delMode:false,sel:null,dAx:null,dAy:null,dBx:null,dBw:null,dBy:null,sim:null,simSeed:1,simB3:.09};
+function niceDom(arr,opt={}){
+  if(arr.length<2)return {x0:0,x1:100,s:20};
+  let lo=Math.min(...arr),hi=Math.max(...arr);const pad=Math.max((hi-lo)*(opt.pad??0.1),1e-6);
+  const step=v=>{const e=Math.pow(10,Math.floor(Math.log10(v/7)));return [1,2,5,10].map(k=>k*e).find(k=>v/k<=7);};
+  const s=step(hi-lo+2*pad);let x0=Math.floor((lo-pad)/s)*s,x1=Math.ceil((hi+pad)/s)*s;
+  if(opt.min!==undefined&&x0<opt.min&&lo>=opt.min)x0=opt.min;if(opt.max!==undefined&&x1>opt.max&&hi<=opt.max)x1=opt.max;
+  return {x0,x1,s};
+}
+function refit(){
+  st.dAx=niceDom(st.A.map(p=>p.x),{min:0});st.dAy=niceDom(st.A.map(p=>p.y),{min:0,max:100});
+  st.dBx=niceDom(st.B.map(p=>p.x),{min:0});st.dBw=niceDom(st.B.map(p=>p.w),{min:0});st.dBy=niceDom(st.B.map(p=>p.y),{min:0,max:100});
+  const ws=st.B.map(p=>p.w);if(ws.length){$('wSl').min=Math.min(...ws);$('wSl').max=Math.max(...ws);st.Wsel=clamp(st.Wsel,Math.min(...ws),Math.max(...ws));$('wSl').value=st.Wsel;}
+  render();
+}
+
+/* ================= 2D 工具 ================= */
+const W=680,H=470,M={l:64,r:22,t:22,b:56};
+const svg=$('chart'),layer=$('layer'),svg3=$('chart3d'),layer3=$('layer3');
+let MAP=null;
+function setMap(dx,dy,box){const b=box||{l:M.l,r:W-M.r,t:M.t,b:H-M.b};
+  MAP={dx,dy,b,X:v=>b.l+(v-dx.x0)/(dx.x1-dx.x0)*(b.r-b.l),Y:v=>b.b-(v-dy.x0)/(dy.x1-dy.x0)*(b.b-b.t),iX:px=>dx.x0+(px-b.l)/(b.r-b.l)*(dx.x1-dx.x0),iY:py=>dy.x0+(b.b-py)/(b.b-b.t)*(dy.x1-dy.x0)};return MAP;}
+const fmtTick=v=>Math.abs(v)<1e-9?'0':(v<0?'−':'')+(+Math.abs(v).toFixed(4));
+function axes(xl,yl,fs=12){const {dx,dy,b,X,Y}=MAP;let g='';
+  for(let v=Math.ceil(dy.x0/dy.s)*dy.s;v<=dy.x1+1e-9;v+=dy.s){const vv=+v.toFixed(6);g+=`<line x1="${b.l}" x2="${b.r}" y1="${Y(vv)}" y2="${Y(vv)}" stroke="#ECE9F7"/><text x="${b.l-8}" y="${Y(vv)+5}" text-anchor="end" font-size="${fs+2}" fill="#7C819C">${fmtTick(vv)}</text>`;}
+  for(let v=Math.ceil(dx.x0/dx.s)*dx.s;v<=dx.x1+1e-9;v+=dx.s){const vv=+v.toFixed(6);g+=`<line y1="${b.t}" y2="${b.b}" x1="${X(vv)}" x2="${X(vv)}" stroke="#F4F2FA"/><text x="${X(vv)}" y="${b.b+19}" text-anchor="middle" font-size="${fs+2}" fill="#7C819C">${fmtTick(vv)}</text>`;}
+  g+=`<line x1="${b.l}" x2="${b.r}" y1="${b.b}" y2="${b.b}" stroke="#A9A5C8"/><line x1="${b.l}" x2="${b.l}" y1="${b.t}" y2="${b.b}" stroke="#A9A5C8"/>`;
+  g+=`<text x="${(b.l+b.r)/2}" y="${b.b+42}" text-anchor="middle" font-size="16" fill="#555B7A" font-weight="500">${xl}</text>`;
+  g+=`<text transform="translate(${b.l-46} ${(b.t+b.b)/2}) rotate(-90)" text-anchor="middle" font-size="16" fill="#555B7A" font-weight="500">${yl}</text>`;return g;}
+function clipLine(b0,b1,color,w,extra=''){const {dx,dy,X,Y}=MAP,cand=[[dx.x0,b0+b1*dx.x0],[dx.x1,b0+b1*dx.x1]];
+  if(Math.abs(b1)>1e-12)cand.push([(dy.x0-b0)/b1,dy.x0],[(dy.x1-b0)/b1,dy.x1]);
+  const ins=cand.filter(([x,y])=>x>=dx.x0-1e-9&&x<=dx.x1+1e-9&&y>=dy.x0-1e-9&&y<=dy.x1+1e-9).sort((a,b)=>a[0]-b[0]);
+  if(ins.length<2)return null;const [a,c]=[ins[0],ins[ins.length-1]];
+  return {s:`<line x1="${X(a[0])}" y1="${Y(a[1])}" x2="${X(c[0])}" y2="${Y(c[1])}" stroke="${color}" stroke-width="${w}" stroke-linecap="round" ${extra}/>`,end:[X(c[0]),Y(c[1])],start:[X(a[0]),Y(a[1])]};}
+const LS=(...a)=>{const r=clipLine(...a);return r?r.s:'';};
+const fmt=(v,d=2)=>Number.isFinite(v)?(v<0?'−':'')+Math.abs(v).toLocaleString('zh-TW',{minimumFractionDigits:d,maximumFractionDigits:d}):'—';
+const sgn=v=>v<0?' − ':' + ';
+const noLead=t=>t.replace(/^(−?)0\./,'$1.');
+const pfmt=p=>!Number.isFinite(p)?'—':(p<0.001?'< .001':noLead(p.toFixed(3)));
+const peq=p=>p<0.001?'p < .001':'p = '+pfmt(p);
+function wColor(v){const d=st.dBw,t=clamp((v-d.x0)/((d.x1-d.x0)||1),0,1),a=[207,196,251],b=[46,28,134];return `rgb(${a.map((c,i)=>Math.round(c+(b[i]-c)*t)).join(',')})`;}
+function labelStack(L,x,anchor){L.sort((a,b)=>a.y-b.y);for(let k=1;k<L.length;k++)if(L[k].y-L[k-1].y<22)L[k].y=L[k-1].y+22;
+  const over=L.length?Math.max(0,L[L.length-1].y-(H-M.b-6)):0;L.forEach(l=>l.y-=over);
+  return L.map(l=>`<text x="${x}" y="${l.y-10}" text-anchor="${anchor}" font-size="16" font-weight="800" fill="${l.c}">${l.t}</text>`).join('');}
+
+/* ================= 主繪圖 ================= */
+function render(){
+  const t=st.tab;
+  const SA=anaA(st.A),SB=anaB(st.B);
+  if(t<=3)drawA(SA);
+  else if(t===4){if(st.dim===3)draw3D(SB);else drawB(SB);}
+  else if(t===5)drawCen(SB);
+  else if(t===6)drawSim();
+  updatePanels(SA,SB);
+}
+function ptA(p,X,Y){const sel=st.sel===p.id;const cx=X(p.x),cy=Y(p.y);
+  let s=p.m===1?`<circle cx="${cx}" cy="${cy}" r="${sel?9:7.5}" fill="#6C4BEF" stroke="#fff" stroke-width="2"/>`:`<rect x="${cx-7}" y="${cy-7}" width="14" height="14" rx="2" fill="#D61FA3" stroke="#fff" stroke-width="2"/>`;
+  if(sel)s+=`<circle cx="${cx}" cy="${cy}" r="13" fill="none" stroke="#0A1045" stroke-width="2"/>`;return s;}
+function drawA(S){
+  const t=st.tab;setMap(st.dAx,st.dAy);const {X,Y}=MAP;
+  let g=axes('外送延遲 X（分鐘，比預估晚多少）','滿意度 Y（分）');
+  const lines=S.ok&&(t>1||st.revealed);let lab=[],lab2='';
+  g+='<g clip-path="url(#plotClip)">';
+  if(lines){
+    if(t===2&&$('showPooled').checked)g+=LS(S.pool.b[0],S.pool.b[1],'#555B7A',3,'stroke-dasharray="9 7"');
+    if(t===3&&$('showAdd').checked){const a=S.add.b;g+=LS(a[0],a[1],'#6C4BEF',2.4,'stroke-dasharray="8 6" stroke-opacity=".7"')+LS(a[0]+a[2],a[1],'#D61FA3',2.4,'stroke-dasharray="8 6" stroke-opacity=".7"');}
+    const l1=clipLine(S.r1.b[0],S.r1.b[1],'#6C4BEF',4),l0=clipLine(S.r0.b[0],S.r0.b[1],'#D61FA3',4);
+    if(l0)g+=l0.s;if(l1)g+=l1.s;
+    if(l1)lab.push({y:l1.end[1],t:`會員 斜率 ${fmt(S.r1.b[1],2)}`,c:'#4B32B8'});
+    if(l0)lab.push({y:l0.end[1],t:`非會員 斜率 ${fmt(S.r0.b[1],2)}`,c:'#A3127B'});
+    if(t===3){const f=S.f.b,x0=st.dAx.x0;if(x0<=0){const ya=Y(f[0]),yb=Y(f[0]+f[2]);
+      g+=`<line x1="${X(0)+14}" x2="${X(0)+14}" y1="${ya}" y2="${yb}" stroke="#0A1045" stroke-width="2.5"/><line x1="${X(0)+8}" x2="${X(0)+20}" y1="${ya}" y2="${ya}" stroke="#0A1045" stroke-width="2"/><line x1="${X(0)+8}" x2="${X(0)+20}" y1="${yb}" y2="${yb}" stroke="#0A1045" stroke-width="2"/>`;
+      lab2+=`<text x="${X(0)+26}" y="${Math.min(ya,yb)-8}" font-size="16" font-weight="800" fill="#0A1045">b₂ = ${fmt(f[2],2)}（準時那一點的差）</text>`;}}
+  }
+  g+='</g>';
+  for(const p of st.A)g+=ptA(p,X,Y);
+  if(lines){const flip=true;g+=labelStack(lab,W-M.r-6,'end');}
+  g+=lab2;
+  if(lines&&(t===2||t===3)){const d=S.r1.b[1]-S.r0.b[1];
+    g+=`<rect x="${W-M.r-(t===3?260:220)-10}" y="${M.t+10}" width="${t===3?260:220}" height="36" rx="18" fill="#F9E900"/><text class="nostroke" x="${W-M.r-(t===3?260:220)+6}" y="${M.t+34}" font-size="17" font-weight="900" fill="#0A1045">斜率差 ${fmt(d,2)}${t===3?' = b₃':''}</text>`;}
+  g+=`<g transform="translate(${M.l+12} ${H-M.b-66})"><rect width="170" height="56" rx="8" fill="#fff" fill-opacity=".92" stroke="#DDD8F5"/><circle cx="18" cy="18" r="7" fill="#6C4BEF"/><text x="32" y="23" font-size="15" fill="#0A1045">會員（W = 1）</text><rect x="11" y="32" width="14" height="14" rx="2" fill="#D61FA3"/><text x="32" y="45" font-size="15" fill="#0A1045">非會員（W = 0）</text></g>`;
+  layer.innerHTML=g;
+}
+function drawB(S){
+  setMap(st.dBx,st.dBy);const {X,Y}=MAP;
+  let g=axes('外送延遲 X（分鐘）','滿意度 Y（分）');
+  g+='<g clip-path="url(#plotClip)">';let lab=[];
+  if(S.ok){const r=S.raw.b,line=Wv=>[r[0]+r[2]*Wv,r[1]+r[3]*Wv];
+    [[S.mw-S.sw,'#BDB0F7','−1SD'],[S.mw,'#6C4BEF','平均'],[S.mw+S.sw,'#2E1C86','+1SD']].forEach(([Wv,c,nm])=>{const [a,b]=line(Wv),l=clipLine(a,b,c,3.4);if(l){g+=l.s;lab.push({y:l.end[1],t:`${nm}（${fmt(Wv,1)} 次）${fmt(b,2)}`,c:c==='#BDB0F7'?'#7C6BD6':c});}});
+    const [a,b]=line(st.Wsel),l=clipLine(a,b,'#D61FA3',4,'stroke-dasharray="10 6"');if(l){g+=l.s;lab.push({y:l.end[1],t:`你選的 ${st.Wsel} 次：${fmt(b,2)}`,c:'#A3127B'});}
+  }
+  g+='</g>';
+  for(const p of st.B){const sel=st.sel===p.id;g+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="${sel?9:7}" fill="${wColor(p.w)}" stroke="#0A1045" stroke-width="1.1"/>`;if(sel)g+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="13" fill="none" stroke="#0A1045" stroke-width="2"/>`;}
+  g+=labelStack(lab,W-M.r-6,'end');
+  g+=`<g transform="translate(${M.l+12} ${H-M.b-62})"><rect width="230" height="52" rx="8" fill="#fff" fill-opacity=".92" stroke="#DDD8F5"/><text x="10" y="20" font-size="15" fill="#555B7A" font-weight="700">點的顏色＝每月訂購次數</text><rect x="10" y="28" width="120" height="12" rx="3" fill="url(#wGrad)"/><text x="136" y="40" font-size="14" fill="#555B7A">少→多</text></g>`;
+  layer.innerHTML=g;
+}
+function drawCen(S){
+  setMap(st.dBx,st.dBy);const {X,Y}=MAP;let g=axes('外送延遲 X（分鐘）','滿意度 Y（分）');
+  g+='<g clip-path="url(#plotClip)">';
+  if(S.ok){const r=S.raw.b;g+=LS(r[0],r[1],'#555B7A',3,'stroke-dasharray="9 7"');g+=LS(r[0]+r[2]*S.mw,r[1]+r[3]*S.mw,'#6C4BEF',4);
+    g+=`<line x1="${X(S.mx)}" x2="${X(S.mx)}" y1="${M.t}" y2="${H-M.b}" stroke="#A9A5C8" stroke-dasharray="4 4"/>`;}
+  g+='</g>';
+  for(const p of st.B)g+=`<circle cx="${X(p.x)}" cy="${Y(p.y)}" r="6.5" fill="${wColor(p.w)}" stroke="#0A1045" stroke-width="1" fill-opacity=".8"/>`;
+  if(S.ok){const r=S.raw.b;
+    g+=`<text x="${M.l+12}" y="${M.t+24}" font-size="17" font-weight="800" fill="#555B7A">灰虛線：W = 0 次的斜率 ${fmt(r[1],2)}（未中心化 b₁）</text>`;
+    g+=`<text x="${M.l+12}" y="${M.t+50}" font-size="17" font-weight="800" fill="#4B32B8">紫實線：W = 平均 ${fmt(S.mw,2)} 次的斜率 ${fmt(S.cen.b[1],2)}（中心化 b₁）</text>`;
+    g+=`<text x="${X(S.mx)+6}" y="${H-M.b-10}" font-size="14" fill="#555B7A">X 的平均 ${fmt(S.mx,1)}</text>`;}
+  layer.innerHTML=g;
+}
+
+/* ================= 3D 扭曲平面 ================= */
+const V3={th:-0.6,ph:0.4,anim:null,mode:'obl'};const VIEW_OBL={th:-0.6,ph:0.4};
+const HZ=1.35,SC=150,CX=345,CY=255;
+function w3(x,w,y){const a=st.dBx,b=st.dBw,c=st.dBy;return [((x-a.x0)/(a.x1-a.x0)*2-1),((w-b.x0)/(b.x1-b.x0)*2-1),((y-c.x0)/(c.x1-c.x0)-0.5)*HZ];}
+function pj(u,v,w){const c=Math.cos(V3.th),s=Math.sin(V3.th),cp=Math.cos(V3.ph),sp=Math.sin(V3.ph);const xp=u*c-v*s,yp=u*s+v*c;return {x:CX+SC*xp,y:CY-SC*(w*cp+yp*sp),d:yp*cp-w*sp};}
+const P=(x,w,y)=>pj(...w3(x,w,y));
+const reduceMo=window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches;
+function goView(name){const T=name==='obl'?{...VIEW_OBL}:name==='front'?{th:0,ph:0.02}:name==='side'?{th:-Math.PI/2,ph:0.02}:{th:0,ph:Math.PI/2-0.02};
+  cancelAnimationFrame(V3.anim);V3.mode=name;const t0=performance.now(),a={th:V3.th,ph:V3.ph};let dth=T.th-a.th;dth=((dth+Math.PI)%(2*Math.PI)+2*Math.PI)%(2*Math.PI)-Math.PI;
+  if(reduceMo){V3.th=a.th+dth;V3.ph=T.ph;render();return;}
+  const step=now=>{const k=Math.min(1,(now-t0)/650),e=k<.5?2*k*k:1-Math.pow(-2*k+2,2)/2;V3.th=a.th+dth*e;V3.ph=a.ph+(T.ph-a.ph)*e;render();if(k<1)V3.anim=requestAnimationFrame(step);};V3.anim=requestAnimationFrame(step);}
+function draw3D(S){
+  const a=st.dBx,b=st.dBw,c=st.dBy;let g='',lab='';const sp=Math.sin(V3.ph),cp=Math.cos(V3.ph),cth=Math.cos(V3.th),sth=Math.sin(V3.th);
+  const F=[[a.x0,b.x0],[a.x1,b.x0],[a.x1,b.x1],[a.x0,b.x1]].map(([u,v])=>P(u,v,c.x0));
+  g+=`<polygon points="${F.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')}" fill="#FBFAFF" stroke="#BDB3EE" stroke-width="1.5"/>`;
+  for(let v=Math.ceil(a.x0/a.s)*a.s;v<=a.x1+1e-9;v+=a.s){const p=P(v,b.x0,c.x0),q=P(v,b.x1,c.x0);g+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="#E6E1F7"/>`;}
+  for(let v=Math.ceil(b.x0/b.s)*b.s;v<=b.x1+1e-9;v+=b.s){const p=P(a.x0,v,c.x0),q=P(a.x1,v,c.x0);g+=`<line x1="${p.x}" y1="${p.y}" x2="${q.x}" y2="${q.y}" stroke="#E6E1F7"/>`;}
+  const showX=Math.hypot(cth,sth*sp)>0.3,showW=Math.hypot(sth,cth*sp)>0.3;
+  const wEdge=P((a.x0+a.x1)/2,b.x0,c.x0).d<=P((a.x0+a.x1)/2,b.x1,c.x0).d?b.x0:b.x1,xEdge=P(a.x0,(b.x0+b.x1)/2,c.x0).d<=P(a.x1,(b.x0+b.x1)/2,c.x0).d?a.x0:a.x1;
+  const ow=(wEdge===b.x0?-1:1)*(b.x1-b.x0),ox=(xEdge===a.x0?-1:1)*(a.x1-a.x0),k=1/Math.max(.35,Math.abs(sp));
+  if(showX){for(let v=Math.ceil(a.x0/a.s)*a.s;v<=a.x1+1e-9;v+=a.s){const p=P(v,wEdge+ow*0.06*k,c.x0);lab+=`<text x="${p.x}" y="${p.y+6}" text-anchor="middle" font-size="15" fill="#7C819C">${+v.toFixed(4)}</text>`;}
+    const p=P((a.x0+a.x1)/2,wEdge+ow*0.17*k,c.x0);lab+=`<text x="${p.x}" y="${p.y+8}" text-anchor="middle" font-size="16" font-weight="700" fill="#555B7A">外送延遲（分）</text>`;}
+  if(showW){for(let v=Math.ceil(b.x0/b.s)*b.s;v<=b.x1+1e-9;v+=b.s){const p=P(xEdge+ox*0.06*k,v,c.x0);lab+=`<text x="${p.x}" y="${p.y+6}" text-anchor="middle" font-size="15" fill="#7C819C">${+v.toFixed(4)}</text>`;}
+    const p=P(xEdge+ox*0.2*k,(b.x0+b.x1)/2,c.x0);lab+=`<text x="${p.x}" y="${p.y+8}" text-anchor="middle" font-size="16" font-weight="700" fill="#555B7A">每月訂購次數</text>`;}
+  if(Math.abs(cp)>0.15){const cs=[[a.x0,b.x0],[a.x1,b.x0],[a.x1,b.x1],[a.x0,b.x1]];let best=cs[0],bx=1e9;for(const q of cs){const p=P(q[0],q[1],c.x0);if(p.x-p.d*40<bx){bx=p.x-p.d*40;best=q;}}
+    const z0=P(best[0],best[1],c.x0),z1=P(best[0],best[1],c.x1);g+=`<line x1="${z0.x}" y1="${z0.y}" x2="${z1.x}" y2="${z1.y}" stroke="#A9A5C8" stroke-width="2"/>`;
+    for(let v=Math.ceil(c.x0/c.s)*c.s;v<=c.x1+1e-9;v+=c.s){const p=P(best[0],best[1],v);lab+=`<text x="${p.x-9}" y="${p.y+5}" text-anchor="end" font-size="15" fill="#7C819C">${v}</text>`;}
+    lab+=`<text x="${z1.x}" y="${z1.y-12}" text-anchor="middle" font-size="16" font-weight="700" fill="#555B7A">滿意度</text>`;}
+  if(!S.ok){layer3.innerHTML=g+lab;return;}
+  const r=S.raw.b,yh=(x,w)=>r[0]+r[1]*x+r[2]*w+r[3]*x*w;
+  const inR=v=>v>=c.x0-1e-9&&v<=c.x1+1e-9;
+  const curve=(fn,N=40)=>{let d='',pen=false;for(let i=0;i<=N;i++){const [x,w]=fn(i/N),z=yh(x,w);if(inR(z)){const q=P(x,w,z);d+=(pen?'L':'M')+q.x.toFixed(1)+' '+q.y.toFixed(1);pen=true;}else pen=false;}return d;};
+  let mesh='';
+  for(let v=Math.ceil(b.x0/b.s)*b.s;v<=b.x1+1e-9;v+=b.s)mesh+=`<path d="${curve(t=>[a.x0+(a.x1-a.x0)*t,v])}" fill="none" stroke="#6C4BEF" stroke-width="1.6" stroke-opacity=".55"/>`;
+  for(let v=Math.ceil(a.x0/a.s)*a.s;v<=a.x1+1e-9;v+=a.s)mesh+=`<path d="${curve(t=>[v,b.x0+(b.x1-b.x0)*t])}" fill="none" stroke="#6C4BEF" stroke-width="1.2" stroke-opacity=".35"/>`;
+  mesh+=`<path d="${curve(t=>[a.x0+(a.x1-a.x0)*t,st.Wsel])}" fill="none" stroke="#D61FA3" stroke-width="4"/>`;
+  const items=[];
+  for(const p of st.B){const q=P(p.x,p.w,p.y),qh=P(p.x,p.w,clamp(yh(p.x,p.w),c.x0,c.x1));items.push({d:q.d,s:`<line x1="${q.x}" y1="${q.y}" x2="${qh.x}" y2="${qh.y}" stroke="#D61FA3" stroke-width="1.4" stroke-opacity=".6"/><circle cx="${q.x.toFixed(1)}" cy="${q.y.toFixed(1)}" r="5.5" fill="${wColor(p.w)}" stroke="#0A1045" stroke-width="1"/>`});}
+  items.sort((u,v)=>v.d-u.d);
+  g+=mesh+items.map(i=>i.s).join('');
+  const qs=P(a.x1,st.Wsel,clamp(yh(a.x1,st.Wsel),c.x0,c.x1));
+  lab+=`<text x="${qs.x+8}" y="${qs.y}" font-size="16" font-weight="800" fill="#A3127B">W = ${st.Wsel}</text>`;
+  lab+=`<text x="340" y="30" text-anchor="middle" font-size="16" fill="#555B7A">紫色網格：模型預測面（有交互作用時會扭曲）；桃紅線：你選的 W</text>`;
+  layer3.innerHTML=g+lab;
+}
+
+/* ================= 第 6 頁：檢定力模擬 ================= */
+function mulberry(a){return ()=>{a|=0;a=a+0x6D2B79F5|0;let t=Math.imul(a^a>>>15,1|a);t=t+Math.imul(t^t>>>7,61|t)^t;return ((t^t>>>14)>>>0)/4294967296;};}
+function runSim(){
+  const r=mulberry(st.simSeed*9973+7),gs=()=>{let u=0;while(u===0)u=r();return Math.sqrt(-2*Math.log(u))*Math.cos(2*Math.PI*r());};
+  const [b0,b1,b2]=PRE['B:normal'],b3=st.simB3,NS=[30,60,120,240],R=400,out=[];
+  for(const n of NS){let pm=0,pi=0,wrong=0;
+    for(let k=0;k<R;k++){const x=[],w=[],y=[];for(let i=0;i<n;i++){const xi=12+7*gs(),wi=8+4*gs();x.push(xi);w.push(wi);y.push(b0+b1*xi+b2*wi+b3*xi*wi+6*gs());}
+      const mx=mean(x),mw=mean(w),xc=x.map(v=>v-mx),wc=w.map(v=>v-mw),m=ols(y,[xc,wc,xc.map((v,i)=>v*wc[i])]);
+      if(!m.ok)continue;if(m.p[1]<.05&&m.b[1]<0)pm++;if(m.p[3]<.05&&m.b[3]>0)pi++;if(m.b[3]<0)wrong++;}
+    out.push({n,pm:pm/R,pi:pi/R,wrong:wrong/R});}
+  st.sim=out;st.simSeed++;
+}
+function drawSim(){
+  let g='';const box={l:90,r:650,t:60,b:400};
+  g+=`<text x="40" y="34" font-size="18" font-weight="800" fill="#555B7A">檢定力：重複抽樣 400 次，有多少次 p &lt; .05（且方向正確）</text>`;
+  if(!st.sim){g+=`<text x="340" y="240" text-anchor="middle" font-size="20" fill="#7C819C">按右邊的「▶ 模擬」開始</text>`;layer.innerHTML=g;return;}
+  const Y=v=>box.b-v*(box.b-box.t);
+  for(let v=0;v<=1.0001;v+=.2){g+=`<line x1="${box.l}" x2="${box.r}" y1="${Y(v)}" y2="${Y(v)}" stroke="#ECE9F7"/><text x="${box.l-8}" y="${Y(v)+5}" text-anchor="end" font-size="14" fill="#7C819C">${Math.round(v*100)}%</text>`;}
+  g+=`<line x1="${box.l}" x2="${box.r}" y1="${Y(.8)}" y2="${Y(.8)}" stroke="#555B7A" stroke-dasharray="6 5"/>`;
+  const gw=(box.r-box.l)/st.sim.length,bw=gw*0.3;
+  st.sim.forEach((s,i)=>{const cx=box.l+gw*(i+.5);
+    g+=`<rect x="${cx-bw-3}" y="${Y(s.pm)}" width="${bw}" height="${box.b-Y(s.pm)}" rx="4" fill="#6C4BEF"/><text x="${cx-bw/2-3}" y="${Y(s.pm)-6}" text-anchor="middle" font-size="15" font-weight="800" fill="#4B32B8">${Math.round(s.pm*100)}%</text>`;
+    g+=`<rect x="${cx+3}" y="${Y(s.pi)}" width="${bw}" height="${box.b-Y(s.pi)}" rx="4" fill="#D61FA3"/><text x="${cx+bw/2+3}" y="${Y(s.pi)-6}" text-anchor="middle" font-size="15" font-weight="800" fill="#A3127B">${Math.round(s.pi*100)}%</text>`;
+    g+=`<text x="${cx}" y="${box.b+22}" text-anchor="middle" font-size="16" font-weight="700" fill="#0A1045">n = ${s.n}</text>`;});
+  g+=`<line x1="${box.l}" x2="${box.r}" y1="${box.b}" y2="${box.b}" stroke="#A9A5C8"/>`;
+  g+=`<g transform="translate(${box.l+10} ${box.b+36})"><rect width="14" height="14" fill="#6C4BEF"/><text x="20" y="13" font-size="15">主效果（延遲，平均訂購次數時）</text><rect x="270" width="14" height="14" fill="#D61FA3"/><text x="290" y="13" font-size="15">交互作用 b₃</text><line x1="410" x2="440" y1="7" y2="7" stroke="#555B7A" stroke-dasharray="6 5"/><text x="446" y="13" font-size="15">常見目標 80%</text></g>`;
+  layer.innerHTML=g;
+}
+
+/* ================= 側欄 ================= */
+function statbar(SA,SB){
+  const t=st.tab;let h='';
+  if(t<=3){h=`<span><span class="lbl">訂單數 n</span><span class="big">${SA.n}</span></span>`;
+    if(SA.ok&&(t>1||st.revealed))h+=`<span><span class="lbl">會員斜率</span><span class="big c-blue">${fmt(SA.r1.b[1],2)}</span></span><span><span class="lbl">非會員斜率</span><span class="big c-coral">${fmt(SA.r0.b[1],2)}</span></span>`+(t===3?`<span><span class="lbl">b₃</span><span class="big">${fmt(SA.f.b[3],2)}，${peq(SA.f.p[3])}</span></span>`:'');
+    h+=`<span><span class="lbl">資料</span><span class="big" style="font-size:.95em">${PNAME[st.preA]}</span></span>`;}
+  else if(t<=5||t===7){h=`<span><span class="lbl">訂單數 n</span><span class="big">${SB.n}</span></span>`;
+    if(SB.ok){const s=SB.slope(st.Wsel);
+      if(t===4)h+=`<span><span class="lbl">W = ${st.Wsel} 次的簡單斜率</span><span class="big c-coral">${fmt(s.b,2)}</span></span><span><span class="lbl">b₃</span><span class="big">${fmt(SB.raw.b[3],3)}，${peq(SB.raw.p[3])}</span></span>`;
+      else h+=`<span class="lineeq">ŷ = ${fmt(SB.cen.b[0],1)}${sgn(SB.cen.b[1])}${fmt(Math.abs(SB.cen.b[1]),2)}X<sub>c</sub>${sgn(SB.cen.b[2])}${fmt(Math.abs(SB.cen.b[2]),2)}W<sub>c</sub>${sgn(SB.cen.b[3])}${fmt(Math.abs(SB.cen.b[3]),3)}X<sub>c</sub>W<sub>c</sub></span>`;}
+    h+=`<span><span class="lbl">資料</span><span class="big" style="font-size:.95em">${PNAME[st.preB]}</span></span>`;}
+  else if(t===6){h=`<span><span class="lbl">模擬設定</span><span class="big" style="font-size:1em">b₁ = −1.40、b₃ = ${fmt(st.simB3,2)}、誤差標準差 6</span></span>`;}
+  $('statbar').innerHTML=h;
+}
+function coefRows(m,names){return names.map((nm,j)=>{const sig=m.p[j]<.05;return `<tr><td>${nm}</td><td>${fmt(m.b[j],3)}</td><td>${fmt(m.se[j],3)}</td><td>${fmt(m.t[j],2)}</td><td class="${sig?'sigc':'nsc'}">${pfmt(m.p[j])}</td></tr>`;}).join('');}
+function updatePanels(SA,SB){
+  statbar(SA,SB);rebuildTables();
+  if(SA.ok){
+    $('r1m').textContent=fmt(SA.r1.b[1],2)+' 分';$('r1n').textContent=fmt(SA.r0.b[1],2)+' 分';
+    $('s2m').textContent=fmt(SA.r1.b[1],3);$('s2n').textContent=fmt(SA.r0.b[1],3);$('s2d').textContent=fmt(SA.r1.b[1]-SA.r0.b[1],3);
+    $('s2mi').textContent=`ŷ = ${fmt(SA.r1.b[0],1)}${sgn(SA.r1.b[1])}${fmt(Math.abs(SA.r1.b[1]),2)}X`;$('s2ni').textContent=`ŷ = ${fmt(SA.r0.b[0],1)}${sgn(SA.r0.b[1])}${fmt(Math.abs(SA.r0.b[1]),2)}X`;
+    $('pooledTxt').textContent=$('showPooled').checked?`不分組的斜率是 ${fmt(SA.pool.b[1],2)}，介於兩群之間。`:'';
+    const f=SA.f.b;
+    $('eq3').innerHTML=`ŷ = ${fmt(f[0],2)}${sgn(f[1])}${fmt(Math.abs(f[1]),3)}X${sgn(f[2])}${fmt(Math.abs(f[2]),3)}W${sgn(f[3])}${fmt(Math.abs(f[3]),3)}XW`;
+    $('sub3').innerHTML=`<thead><tr><th>代入</th><th>截距</th><th>斜率</th></tr></thead><tbody>
+      <tr><td style="color:#A3127B;font-weight:700">非會員 W = 0</td><td>b₀ = ${fmt(f[0],2)}</td><td>b₁ = ${fmt(f[1],3)}</td></tr>
+      <tr><td style="color:#4B32B8;font-weight:700">會員 W = 1</td><td>b₀ + b₂ = ${fmt(f[0]+f[2],2)}</td><td>b₁ + b₃ = ${fmt(f[1]+f[3],3)}</td></tr></tbody>`;
+    $('coef3').innerHTML=`<thead><tr><th></th><th><i>B</i></th><th><i>SE</i></th><th><i>t</i>(${SA.f.dfE})</th><th><i>p</i></th></tr></thead><tbody>${coefRows(SA.f,['截距 b₀','延遲 X（b₁）','會員 W（b₂）','X × W（b₃）'])}</tbody>`;
+    $('b3Txt').innerHTML=SA.f.p[3]<.05?`b₃ = ${fmt(f[3],3)}，<i>t</i>(${SA.f.dfE}) = ${fmt(SA.f.t[3],2)}，${peq(SA.f.p[3])}：兩條線的斜率<strong>顯著不同</strong>，會員身分調節了延遲對滿意度的影響。`:`b₃ = ${fmt(f[3],3)}，${peq(SA.f.p[3])}：斜率差異不顯著，沒有證據顯示會員身分有調節效果。`;
+    $('dR2A').innerHTML=`沒有交互作用項的 <i>R</i>² = ${noLead(fmt(SA.add.R2,3))}，加入後 = ${noLead(fmt(SA.f.R2,3))}，Δ<i>R</i>² = ${noLead(fmt(SA.dR2,3))}，<i>F</i>(1, ${SA.f.dfE}) = ${fmt(SA.Fch,2)}，${peq(SA.pch)}。只加一項時，這個 <i>F</i> 剛好等於 b₃ 的 <i>t</i>²（${fmt(SA.f.t[3]**2,2)}）。`;
+  }
+  if(SB.ok){
+    const s=SB.slope(st.Wsel);$('wOut').textContent=st.Wsel+' 次';
+    $('ss4').innerHTML=`每月訂 ${st.Wsel} 次的顧客：延遲每多 1 分鐘，滿意度平均${s.b<0?'降低':'提高'} <span class="c-coral">${fmt(Math.abs(s.b),2)}</span> 分<br><span style="font-weight:400">簡單斜率 = ${fmt(SB.raw.b[1],3)} + ${fmt(SB.raw.b[3],3)} × ${st.Wsel} = ${fmt(s.b,3)}，<i>SE</i> = ${fmt(s.se,3)}，<i>t</i>(${SB.raw.dfE}) = ${fmt(s.t,2)}，${peq(s.p)}${s.p<.05?'':'（不顯著）'}</span>`;
+    const rows=[[SB.mw-SB.sw,'−1SD'],[SB.mw,'平均'],[SB.mw+SB.sw,'+1SD']].map(([Wv,nm])=>{const q=SB.slope(Wv);return `<tr><td>${nm}（${fmt(Wv,2)} 次）</td><td>${fmt(q.b,3)}</td><td>${fmt(q.se,3)}</td><td>${fmt(q.t,2)}</td><td class="${q.p<.05?'sigc':'nsc'}">${pfmt(q.p)}</td></tr>`;}).join('');
+    $('ssTable').innerHTML=`<thead><tr><th>W</th><th>簡單斜率</th><th><i>SE</i></th><th><i>t</i></th><th><i>p</i></th></tr></thead><tbody>${rows}</tbody>`;
+    drawJN(SB);
+    // 5
+    const R=SB.raw,C=SB.cen;
+    const row=(nm,a,b,same)=>`<tr><td>${nm}</td><td class="${same?'hl':''}">${a}</td><td class="${same?'hl':''}">${b}</td></tr>`;
+    $('cenTable').innerHTML=`<thead><tr><th></th><th>未中心化</th><th>中心化</th></tr></thead><tbody>
+      ${row('b₀',fmt(R.b[0],2),fmt(C.b[0],2))}${row('b₁（延遲）',fmt(R.b[1],3),fmt(C.b[1],3))}${row('b₂（訂購次數）',fmt(R.b[2],3),fmt(C.b[2],3))}
+      ${row('b₃（X × W）',fmt(R.b[3],3),fmt(C.b[3],3),true)}${row('b₃ 的 <i>t</i>',fmt(R.t[3],2),fmt(C.t[3],2),true)}${row('<i>R</i>²',noLead(fmt(R.R2,3)),noLead(fmt(C.R2,3)),true)}
+      ${row('VIF：X',fmt(SB.vifRaw[0],2),fmt(SB.vifCen[0],2))}${row('VIF：W',fmt(SB.vifRaw[1],2),fmt(SB.vifCen[1],2))}${row('VIF：X × W',fmt(SB.vifRaw[2],2),fmt(SB.vifCen[2],2))}</tbody>`;
+    $('cenTxt').innerHTML=`未中心化時，b₁ = ${fmt(R.b[1],3)} 是「每月訂 <strong>0</strong> 次」的顧客的斜率；中心化後，b₁ = ${fmt(C.b[1],3)} 是「每月訂<strong>平均 ${fmt(SB.mw,2)} 次</strong>」的顧客的斜率。同樣地，b₂ 從「延遲 0 分鐘時」變成「平均延遲 ${fmt(SB.mx,2)} 分鐘時」，訂購次數每多 1 次的差異。`;
+  }
+  $('simTxt').innerHTML=st.sim?(()=>{const s60=st.sim.find(s=>s.n===60),s30=st.sim.find(s=>s.n===30);return `b₃ = ${fmt(st.simB3,2)}、n = 60 時，主效果的檢定力約 ${Math.round(s60.pm*100)}%，交互作用約 ${Math.round(s60.pi*100)}%。n = 30 時，有 ${Math.round(s30.wrong*100)}% 的 b₃ 估計值正負號是錯的。`;})():'';
+  if(SB.ok)renderApa(SB);
+}
+function drawJN(S){
+  const v=$('jnPlot'),w0=Math.min(S.wmin,1),w1=Math.max(S.wmax,20),N=80,pts=[];for(let i=0;i<=N;i++){const W=w0+(w1-w0)*i/N;pts.push(S.slope(W));}
+  const lo=Math.min(0,...pts.map(p=>p.lo)),hi=Math.max(0,...pts.map(p=>p.hi)),box={l:46,r:410,t:14,b:192};
+  const X=W=>box.l+(W-w0)/(w1-w0)*(box.r-box.l),Y=b=>box.b-(b-lo)/(hi-lo)*(box.b-box.t);
+  let g='';
+  // 顯著區間底色
+  for(let i=0;i<N;i++){const p=pts[i];if(p.hi<0||p.lo>0)g+=`<rect x="${X(p.W)}" y="${box.t}" width="${X(pts[i+1].W)-X(p.W)+0.5}" height="${box.b-box.t}" fill="#F3F0FF"/>`;}
+  g+=`<path d="M${pts.map(p=>X(p.W)+' '+Y(p.hi)).join('L')}L${pts.slice().reverse().map(p=>X(p.W)+' '+Y(p.lo)).join('L')}Z" fill="#6C4BEF" fill-opacity=".18"/>`;
+  g+=`<path d="M${pts.map(p=>X(p.W)+' '+Y(p.b)).join('L')}" fill="none" stroke="#6C4BEF" stroke-width="3"/>`;
+  g+=`<line x1="${box.l}" x2="${box.r}" y1="${Y(0)}" y2="${Y(0)}" stroke="#D61FA3" stroke-width="2"/>`;
+  [lo,0,hi].forEach(t=>{g+=`<text x="${box.l-6}" y="${Y(t)+5}" text-anchor="end" font-size="13" fill="#7C819C">${fmt(t,1)}</text>`;});
+  for(let W=Math.ceil(w0/5)*5;W<=w1;W+=5)g+=`<text x="${X(W)}" y="${box.b+18}" text-anchor="middle" font-size="13" fill="#7C819C">${W}</text>`;
+  g+=`<text x="${(box.l+box.r)/2}" y="${box.b+36}" text-anchor="middle" font-size="14" fill="#555B7A">每月訂購次數 W（淡紫底：斜率顯著）</text>`;
+  if(S.jn)S.jn.forEach(j=>{if(j>=w0&&j<=w1)g+=`<line x1="${X(j)}" x2="${X(j)}" y1="${box.t}" y2="${box.b}" stroke="#0A1045" stroke-dasharray="4 3"/><text x="${X(j)+4}" y="${box.t+14}" font-size="13" font-weight="700" fill="#0A1045">${fmt(j,2)}</text>`;});
+  g+=`<line x1="${X(st.Wsel)}" x2="${X(st.Wsel)}" y1="${box.t}" y2="${box.b}" stroke="#D61FA3" stroke-width="2"/>`;
+  v.innerHTML=g;
+  let txt='';if(!S.jn)txt='在所有 W 值下，簡單斜率的顯著性都不會改變。';
+  else{const inr=S.jn.filter(j=>j>=S.wmin&&j<=S.wmax);
+    if(!inr.length)txt=`兩個分界點（${S.jn.map(j=>fmt(j,2)).join('、')}）都在資料範圍（${S.wmin}～${S.wmax} 次）外，資料範圍內斜率的顯著性不變。`;
+    else{const s0=S.slope(S.wmin).p<.05;txt=`分界點 W = ${inr.map(j=>fmt(j,2)).join('、')}。`+(inr.length===1?`在資料範圍（${S.wmin}～${S.wmax} 次）內，每月訂購 ${fmt(inr[0],2)} 次以下時延遲的斜率${s0?'顯著':'不顯著'}，超過後${s0?'不顯著':'顯著'}。`:`W 在兩個分界點之間時斜率${S.qa>0?'不顯著':'顯著'}。`);}}
+  $('jnTxt').textContent=txt;
+}
+
+/* ================= 資料表 ================= */
+function rebuildTables(){
+  [['dataTableA','A',[['x','延遲'],['m','會員'],['y','滿意度']]],['dataTableB','B',[['x','延遲'],['w','訂購次數'],['y','滿意度']]]].forEach(([id,set,cols])=>{
+    const tb=$(id);if(tb.contains(document.activeElement))return;
+    let h=`<thead><tr><th>#</th>${cols.map(c=>`<th>${c[1]}</th>`).join('')}<th></th></tr></thead><tbody>`;
+    st[set].forEach((p,i)=>{h+=`<tr><td>${i+1}</td>`+cols.map(([k])=>`<td><input type="number" step="any" data-set="${set}" data-id="${p.id}" data-k="${k}" value="${p[k]}" aria-label="第${i+1}筆${k}"></td>`).join('')+`<td><button data-set="${set}" data-del="${p.id}" aria-label="刪除第${i+1}筆">✕</button></td></tr>`;});
+    tb.innerHTML=h+'</tbody>';});
+}
+document.querySelectorAll('.datatable').forEach(tb=>{
+  tb.addEventListener('change',e=>{const el=e.target;if(!el.dataset.id)return;let v=parseFloat(el.value);if(!Number.isFinite(v))return;if(el.dataset.k==='m')v=v>=0.5?1:0;
+    const set=el.dataset.set,p=st[set].find(q=>q.id==el.dataset.id);if(p){p[el.dataset.k]=v;if(set==='A')st.preA='edit';else st.preB='edit';el.blur();refit();}});
+  tb.addEventListener('click',e=>{const id=e.target.dataset.del;if(id){const set=e.target.dataset.set;st[set]=st[set].filter(p=>p.id!=id);if(set==='A')st.preA='edit';else st.preB='edit';render();}});
+});
+
+/* ================= 2D 互動 ================= */
+function svgPt(el,ev){const pt=el.createSVGPoint();pt.x=ev.clientX;pt.y=ev.clientY;return pt.matrixTransform(el.getScreenCTM().inverse());}
+const setKey=()=>st.tab<=3?'A':(st.tab===4&&st.dim===2?'B':null);
+function nearest2(p){const k=setKey();if(!k||!MAP)return null;let best=null,bd=14;for(const q of st[k]){const d=Math.hypot(MAP.X(q.x)-p.x,MAP.Y(q.y)-p.y);if(d<bd){bd=d;best=q;}}return best;}
+let drag=null,lastTap={id:null,t:0};
+svg.addEventListener('pointerdown',ev=>{
+  const k=setKey();if(!k)return;const p=svgPt(svg,ev),hit=nearest2(p),now=performance.now();
+  const mark=()=>{if(k==='A')st.preA='edit';else st.preB='edit';};
+  if(st.delMode&&k==='A'){if(hit){st.A=st.A.filter(q=>q!==hit);mark();render();}return;}
+  if(hit&&lastTap.id===hit.id&&now-lastTap.t<400){st[k]=st[k].filter(q=>q!==hit);if(st.sel===hit.id)st.sel=null;mark();lastTap={id:null,t:0};render();return;}
+  if(hit){lastTap={id:hit.id,t:now};drag=hit;st.sel=hit.id;svg.setPointerCapture(ev.pointerId);render();return;}
+  if(p.x<M.l||p.x>W-M.r||p.y<M.t||p.y>H-M.b)return;
+  const np={id:++uid,x:Math.max(0,Math.round(MAP.iX(p.x))),y:clamp(Math.round(MAP.iY(p.y)),0,100)};
+  if(k==='A')np.m=st.addG;else np.w=st.Wsel;
+  st[k].push(np);st.sel=np.id;drag=np;lastTap={id:np.id,t:now};mark();svg.setPointerCapture(ev.pointerId);render();
+});
+svg.addEventListener('pointermove',ev=>{if(!drag)return;const p=svgPt(svg,ev);drag.x=Math.max(0,Math.round(MAP.iX(clamp(p.x,M.l,W-M.r))));drag.y=clamp(Math.round(MAP.iY(clamp(p.y,M.t,H-M.b))),0,100);if(st.tab<=3)st.preA='edit';else st.preB='edit';render();});
+const endDrag=()=>{drag=null;};svg.addEventListener('pointerup',endDrag);svg.addEventListener('pointercancel',endDrag);
+$('delMode').onclick=e=>{st.delMode=!st.delMode;e.currentTarget.setAttribute('aria-pressed',st.delMode);};
+$('addGrp').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.addG=+b.dataset.g;$('addGrp').querySelectorAll('button').forEach(x=>{x.classList.toggle('on',x===b);x.classList.toggle('nm',x===b&&b.dataset.g==='0');});});
+
+/* ================= 3D 互動 ================= */
+let d3=null;
+svg3.addEventListener('pointerdown',ev=>{const p=svgPt(svg3,ev);cancelAnimationFrame(V3.anim);d3={sx:p.x,sy:p.y,th:V3.th,ph:V3.ph};svg3.classList.add('dragging');svg3.setPointerCapture(ev.pointerId);});
+svg3.addEventListener('pointermove',ev=>{if(!d3)return;const p=svgPt(svg3,ev);V3.th=d3.th+(p.x-d3.sx)*0.01;V3.ph=clamp(d3.ph+(p.y-d3.sy)*0.008,-0.4,Math.PI/2-0.01);V3.mode='free';render();});
+const end3=()=>{d3=null;svg3.classList.remove('dragging');};svg3.addEventListener('pointerup',end3);svg3.addEventListener('pointercancel',end3);
+document.querySelectorAll('[data-view]').forEach(b=>b.addEventListener('click',()=>goView(b.dataset.view)));
+function setDim(d){st.dim=d;['dimSeg','dimSeg3'].forEach(id=>$(id).querySelectorAll('button').forEach(x=>x.classList.toggle('on',+x.dataset.d===d)));setTab(st.tab,true);}
+['dimSeg','dimSeg3'].forEach(id=>$(id).addEventListener('click',e=>{const b=e.target.closest('button');if(b)setDim(+b.dataset.d);}));
+
+/* ================= 控制項 ================= */
+document.querySelectorAll('[data-preset]').forEach(b=>b.addEventListener('click',()=>{const k=b.dataset.preset;if(k[0]==='A'){st.A=genA(...PRE[k]);st.preA=k;}else{st.B=genB(...PRE[k]);st.preB=k;}st.sel=null;refit();}));
+$('wSl').addEventListener('input',e=>{st.Wsel=+e.target.value;render();});
+['showPooled','showAdd'].forEach(id=>$(id).addEventListener('change',render));
+$('effSeg').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;st.simB3=+b.dataset.b;$('effSeg').querySelectorAll('button').forEach(x=>x.classList.toggle('on',x===b));st.sim=null;$('simBtn').textContent='▶ 每種樣本數模擬 400 次';render();});
+$('simBtn').onclick=()=>{$('simBtn').disabled=true;$('simBtn').textContent='模擬中…';setTimeout(()=>{runSim();$('simBtn').disabled=false;$('simBtn').textContent='▶ 再模擬一次（換一批樣本）';render();},30);};
+$('guessOpts').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const S=anaA(st.A);if(!S.ok)return;
+  const g=+b.dataset.g,d=S.r1.b[1]-S.r0.b[1],ans=Math.abs(d)<0.15?1:(d>0?0:2);st.revealed=true;
+  $('guessOpts').querySelectorAll('button').forEach(x=>{x.classList.toggle('pick',+x.dataset.g===g);x.classList.toggle('right',+x.dataset.g===ans);});
+  $('guessFb').className='feedback'+(g===ans?' ok':'');$('guessFb').textContent=(g===ans?'猜對了！':'很多人會這樣猜，答案其實是 '+'ABC'[ans]+'。')+` 會員的斜率 ${fmt(S.r1.b[1],2)}，非會員 ${fmt(S.r0.b[1],2)}。`;
+  $('afterReveal').hidden=false;render();});
+
+/* ================= 第 7 頁 ================= */
+const a2=v=>fmt(v,2);
+const apaP=p=>p<0.001?'<i>p</i> &lt; .001':'<i>p</i> = '+noLead(p.toFixed(3));
+const apaPc=p=>p<0.001?'&lt; .001':noLead(p.toFixed(3));
+const SRC={n:{pg:4,t:'樣本數 <i>n</i>：第 4 頁的訂單筆數。'},b:{pg:5,t:'中心化後的係數 <i>B</i>：b₁、b₂ 是「另一個變數在平均數時」的斜率（第 5 頁）。'},b3:{pg:3,t:'交互作用 b₃：W 每多 1 單位，X 的斜率改變多少（第 3、4 頁）。中心化不會改變它。'},
+ se:{pg:3,t:'<i>SE</i>、<i>t</i>、<i>p</i>：第 3 頁係數表的算法。'},dr2:{pg:3,t:'Δ<i>R</i>² 與 <i>F</i> 改變量：階層迴歸第 2 步加入交互作用項後 <i>R</i>² 增加多少；只加一項時 <i>F</i> = <i>t</i>²（第 3 頁）。'},
+ ss:{pg:4,t:'簡單斜率 = b₁ + b₃W，<i>SE</i> 用 Var(b₁)、Var(b₃) 與 Cov(b₁, b₃) 計算（第 4 頁）。'},jn:{pg:4,t:'Johnson–Neyman 分界點：簡單斜率由顯著變不顯著的 W 值（第 4 頁研究所延伸）。'},
+ r2:{pg:3,t:'各模型的 <i>R</i>² 與整體 <i>F</i>：模型 1 只有主效果，模型 2 加入交互作用項（第 3 頁「拿掉交互作用項」的比較）。'}};
+const sp=(k,h)=>`<span data-src="${k}">${h}</span>`;let srcOn=null;
+function renderApa(S){
+  const m=S.cen,a=S.add,df=m.dfE,names=['（常數）','外送延遲（中心化）','每月訂購次數（中心化）','延遲 × 訂購次數'];
+  const cell=(mod,j,k)=>j<mod.b.length?`<td>${sp(k,a2(mod.b[j]))}</td><td>${sp('se',a2(mod.se[j]))}</td><td>${sp('se',apaPc(mod.p[j]))}</td>`:'<td></td><td></td><td></td>';
+  $('apaTable').innerHTML=`<thead><tr><th rowspan="2" style="vertical-align:bottom">變項</th><th colspan="3">模型 1</th><th colspan="3">模型 2</th></tr><tr><th><i>B</i></th><th><i>SE</i></th><th><i>p</i></th><th><i>B</i></th><th><i>SE</i></th><th><i>p</i></th></tr></thead><tbody>`+
+    names.map((nm,j)=>`<tr><td>${nm}</td>${cell(a,j,'b')}${cell(m,j,j===3?'b3':'b')}</tr>`).join('')+
+    `<tr><td style="border-top:1px solid var(--ink)"><i>R</i>²</td><td colspan="3" style="border-top:1px solid var(--ink)">${sp('r2',noLead(a2(a.R2)))}</td><td colspan="3" style="border-top:1px solid var(--ink)">${sp('r2',noLead(a2(m.R2)))}</td></tr>`+
+    `<tr><td><i>F</i></td><td colspan="3">${sp('r2',`<i>F</i>(2, ${a.dfE}) = ${a2(a.F)}${a.pF<.001?'***':a.pF<.01?'**':a.pF<.05?'*':''}`)}</td><td colspan="3">${sp('r2',`<i>F</i>(3, ${m.dfE}) = ${a2(m.F)}${m.pF<.001?'***':m.pF<.01?'**':m.pF<.05?'*':''}`)}</td></tr>`+
+    `<tr><td>Δ<i>R</i>²</td><td colspan="3">—</td><td colspan="3">${sp('dr2',noLead(a2(S.dR2)))}</td></tr>`+
+    `<tr><td><i>F</i> 改變量</td><td colspan="3">—</td><td colspan="3">${sp('dr2',`<i>F</i>(1, ${df}) = ${a2(S.Fch)}${S.pch<.001?'***':S.pch<.01?'**':S.pch<.05?'*':''}`)}</td></tr></tbody>`;
+  $('apaNote').innerHTML=`<i>註</i>. ${sp('n','<i>n</i> = '+S.n)}。依變項為顧客滿意度（0–100 分）。外送延遲與每月訂購次數皆已平均數中心化。模型 2 交互作用項的 ${sp('se',`<i>t</i>(${df}) = ${a2(m.t[3])}`)}，${sp('b3',`95% CI [${a2(m.ciL[3])}, ${a2(m.ciU[3])}]`)}。<br>* <i>p</i> &lt; .05. ** <i>p</i> &lt; .01. *** <i>p</i> &lt; .001.`;
+  const lv=[[S.mw-S.sw,'低（−1<i>SD</i>）'],[S.mw,'平均'],[S.mw+S.sw,'高（+1<i>SD</i>）']].map(([Wv,nm])=>({nm,q:S.slope(Wv)}));
+  $('apaTable2').innerHTML=`<thead><tr><th>每月訂購次數</th><th><i>W</i></th><th>簡單斜率 <i>B</i></th><th><i>SE</i></th><th><i>t</i>(${S.raw.dfE})</th><th><i>p</i></th><th>95% CI</th></tr></thead><tbody>`+
+    lv.map(({nm,q})=>`<tr><td>${nm}</td><td>${a2(q.W)}</td><td>${sp('ss',a2(q.b))}</td><td>${sp('ss',a2(q.se))}</td><td>${sp('ss',a2(q.t))}</td><td>${sp('ss',apaPc(q.p))}</td><td>${sp('ss',`[${a2(q.lo)}, ${a2(q.hi)}]`)}</td></tr>`).join('')+'</tbody>';
+  const jIn=S.jn?S.jn.filter(j=>j>=S.wmin&&j<=S.wmax):[];
+  $('apaNote2').innerHTML=jIn.length?`<i>註</i>. ${sp('jn',`Johnson–Neyman 分界點為每月 ${jIn.map(j=>a2(j)).join('、')} 次`)}。`:'<i>註</i>. 在資料範圍內沒有 Johnson–Neyman 分界點。';
+  const sig=m.p[3]<.05,[L,Mi,Hh]=lv.map(o=>o.q);
+  let z=`本研究以階層迴歸分析每月訂購次數是否調節外送延遲與顧客滿意度的關係（${sp('n','<i>n</i> = '+S.n)}），外送延遲與訂購次數皆先平均數中心化。第一階段放入外送延遲與每月訂購次數，${sp('r2',`<i>R</i>² = ${noLead(a2(a.R2))}，<i>F</i>(2, ${a.dfE}) = ${a2(a.F)}，${apaP(a.pF)}`)}；第二階段加入兩者的交互作用項，`;
+  if(sig){
+    z+=`解釋量顯著增加，${sp('dr2',`Δ<i>R</i>² = ${noLead(a2(S.dR2))}，<i>F</i>(1, ${df}) = ${a2(S.Fch)}，${apaP(S.pch)}`)}。交互作用項 ${sp('b3','<i>B</i> = '+a2(m.b[3]))}，${sp('se',`<i>SE</i> = ${a2(m.se[3])}`)}，${sp('b3',`95% CI [${a2(m.ciL[3])}, ${a2(m.ciU[3])}]`)}。`;
+    z+=`簡單斜率分析顯示，每月訂購次數較低（−1<i>SD</i>）的顧客，外送延遲與滿意度的關係為 ${sp('ss',`<i>B</i> = ${a2(L.b)}，${apaP(L.p)}`)}；訂購次數較高（+1<i>SD</i>）時為 ${sp('ss',`<i>B</i> = ${a2(Hh.b)}，${apaP(Hh.p)}`)}。`;
+    z+=m.b[3]>0&&L.b<0?'換言之，熟客對外送延遲較為寬容，延遲對新客滿意度的負面影響較大。':'換言之，延遲與滿意度的關係隨訂購次數而改變。';
+    if(jIn.length)z+=`Johnson–Neyman 分析顯示，${sp('jn',`每月訂購次數高於 ${a2(jIn[jIn.length-1])} 次`)}的顧客，延遲的簡單斜率不再顯著。`;
+  }else{
+    z+=`解釋量沒有顯著增加，${sp('dr2',`Δ<i>R</i>² = ${noLead(a2(S.dR2))}，<i>F</i>(1, ${df}) = ${a2(S.Fch)}，${apaP(S.pch)}`)}；交互作用項 ${sp('b3','<i>B</i> = '+a2(m.b[3]))}，${sp('b3',`95% CI [${a2(m.ciL[3])}, ${a2(m.ciU[3])}]`)}，沒有證據顯示每月訂購次數調節了外送延遲與滿意度的關係。`;
+  }
+  $('apaPara').innerHTML=z;
+  $('apaParaEn').innerHTML=`A hierarchical regression analysis was conducted with mean-centered delivery delay and monthly order frequency (<i>n</i> = ${S.n}). Step 1 included the two main effects, <i>R</i><sup>2</sup> = ${noLead(a2(a.R2))}, <i>F</i>(2, ${a.dfE}) = ${a2(a.F)}, ${apaP(a.pF)}. Adding the interaction term in Step 2 ${sig?'significantly':'did not significantly'} ${sig?'increased':'increase'} the explained variance, Δ<i>R</i><sup>2</sup> = ${noLead(a2(S.dR2))}, <i>F</i>(1, ${df}) = ${a2(S.Fch)}, ${apaP(S.pch)}; <i>B</i> = ${a2(m.b[3])}, <i>SE</i> = ${a2(m.se[3])}, 95% CI [${a2(m.ciL[3])}, ${a2(m.ciU[3])}].`+(sig?` Simple slopes indicated that delay was ${L.p<.05?'significantly':'not significantly'} associated with satisfaction at low order frequency (−1 <i>SD</i>), <i>B</i> = ${a2(L.b)}, ${apaP(L.p)}, and ${Hh.p<.05?'significantly':'not significantly'} at high order frequency (+1 <i>SD</i>), <i>B</i> = ${a2(Hh.b)}, ${apaP(Hh.p)}.`:'');
+  drawFig(S,lv);
+  if(srcOn)showSrc(srcOn);
+}
+function drawFig(S,lv){
+  const v=$('apaFig'),box={l:52,r:300,t:16,b:220},xs=[S.mx-sd(S.x),S.mx+sd(S.x)],r=S.raw.b,pred=(x,w)=>r[0]+r[1]*x+r[2]*w+r[3]*x*w;
+  const ys=lv.flatMap(o=>xs.map(x=>pred(x,o.q.W))),dy=niceDom(ys,{pad:.25});
+  const X=x=>box.l+(x-xs[0])/(xs[1]-xs[0])*(box.r-box.l-40)+20,Y=y=>box.b-(y-dy.x0)/(dy.x1-dy.x0)*(box.b-box.t);
+  let g=`<line x1="${box.l}" x2="${box.r}" y1="${box.b}" y2="${box.b}" stroke="#0A1045"/><line x1="${box.l}" x2="${box.l}" y1="${box.t}" y2="${box.b}" stroke="#0A1045"/>`;
+  for(let t=Math.ceil(dy.x0/dy.s)*dy.s;t<=dy.x1+1e-9;t+=dy.s)g+=`<text x="${box.l-6}" y="${Y(t)+5}" text-anchor="end" font-size="13" fill="#0A1045">${+t.toFixed(4)}</text>`;
+  g+=`<text x="${X(xs[0])}" y="${box.b+18}" text-anchor="middle" font-size="13">低延遲（−1SD）</text><text x="${X(xs[1])}" y="${box.b+18}" text-anchor="middle" font-size="13">高延遲（+1SD）</text>`;
+  g+=`<text transform="translate(16 ${(box.t+box.b)/2}) rotate(-90)" text-anchor="middle" font-size="13">滿意度（分）</text><text x="${(box.l+box.r)/2}" y="${box.b+38}" text-anchor="middle" font-size="13">外送延遲</text>`;
+  const sty=[['#0A1045','6 4','低訂購次數'],['#0A1045','','平均'],['#0A1045','2 3','高訂購次數']];
+  lv.forEach((o,i)=>{const [c,da,nm]=sty[i];g+=`<line x1="${X(xs[0])}" y1="${Y(pred(xs[0],o.q.W))}" x2="${X(xs[1])}" y2="${Y(pred(xs[1],o.q.W))}" stroke="${c}" stroke-width="${i===1?3:2.4}" stroke-dasharray="${da}"/>`;
+    g+=`<line x1="315" x2="345" y1="${60+i*26}" y2="${60+i*26}" stroke="${c}" stroke-width="2.4" stroke-dasharray="${da}"/><text x="350" y="${65+i*26}" font-size="13">${nm}</text>`;});
+  v.innerHTML=g;
+}
+function showSrc(k){const d=SRC[k];if(!d)return;srcOn=k;document.querySelectorAll('#apaWrap [data-src]').forEach(el=>el.classList.toggle('on',el.dataset.src===k));$('srcBox').innerHTML=`${d.t}<button class="btn" data-goto="${d.pg}">前往第 ${d.pg} 頁 →</button>`;}
+$('apaWrap').addEventListener('click',e=>{const g=e.target.closest('[data-goto]');if(g){setTab(+g.dataset.goto);return;}const el=e.target.closest('[data-src]');if(el)showSrc(el.dataset.src);});
+const BUGS=[
+ {t:'本研究以調節迴歸分析每月訂購次數是否調節外送延遲與顧客滿意度的關係（<i>n</i> = 60），自變項皆先平均數中心化。'},
+ {t:'交互作用項達顯著（<i>p</i> &lt; .05），表示訂購次數會導致延遲的負面影響變小。',e:'兩個問題：只寫 <i>p</i> &lt; .05，沒有報告 <i>B</i>、<i>SE</i>、<i>t</i>(56) 和信賴區間；橫斷面資料不能寫「導致」，應寫「調節了…的關係」。'},
+ {t:'交互作用項 <i>B</i> = 0.10，<i>SE</i> = 0.03，<i>t</i>(56) = 3.03，<i>p</i> = .004，95% CI [0.03, 0.17]，Δ<i>R</i>² = .06。'},
+ {t:'外送延遲的主效果 <i>B</i> = −0.66，表示所有顧客的延遲每多 1 分鐘，滿意度都平均降低 0.66 分。',e:'有交互作用時，中心化後的 b₁ 是「訂購次數在平均數（約 8 次）時」的簡單斜率，不是所有顧客共同的效果。熟客的斜率只有約 −0.26，新客約 −1.06。'},
+ {t:'訂購次數高（+1<i>SD</i>）時延遲的斜率不顯著（<i>p</i> = .161），訂購次數低（−1<i>SD</i>）時顯著（<i>p</i> &lt; .001），這兩個 <i>p</i> 值的對比就證明了調節效果。',e:'調節效果的證據是交互作用項 b₃ 的檢定（上一句），不是兩個簡單斜率一個顯著、一個不顯著。簡單斜率是用來說明方向的。'},
+ {t:'中心化後 VIF 明顯下降，因此中心化解決了共線性問題，讓交互作用變得顯著。',e:'中心化前後，b₃ 的 <i>t</i> 和 <i>p</i> 完全相同（第 5 頁）。中心化只讓係數比較好解讀，不會讓交互作用「變得顯著」。'}
+]
+;
+const NBUG=BUGS.filter(b=>b.e).length;let bugFound=new Set();
+function buildBugs(){bugFound=new Set();$('bugPara').innerHTML=BUGS.map((b,i)=>`<span data-bug="${i}">${b.t}</span>`).join('');$('bugExp').innerHTML='';$('bugFb').className='feedback';$('bugFb').textContent=`已找到 0 / ${NBUG} 句`;}
+function markBug(i){const b=BUGS[i],el=$('bugPara').querySelector(`[data-bug="${i}"]`);
+  if(!b.e){el.classList.add('okc');$('bugFb').className='feedback';$('bugFb').textContent=`這句寫得沒問題，再找找看。已找到 ${bugFound.size} / ${NBUG} 句`;return;}
+  if(bugFound.has(i))return;bugFound.add(i);el.classList.add('hit');$('bugExp').insertAdjacentHTML('beforeend',`<p><b>第 ${i+1} 句</b>：${b.e}</p>`);
+  const done=bugFound.size===NBUG;$('bugFb').className='feedback'+(done?' ok':'');$('bugFb').textContent=done?`全部找到了！共 ${NBUG} 句。`:`找到了！已找到 ${bugFound.size} / ${NBUG} 句`;}
+$('bugPara').addEventListener('click',e=>{const el=e.target.closest('[data-bug]');if(el)markBug(+el.dataset.bug);});
+$('bugReset').onclick=buildBugs;$('bugShow').onclick=()=>BUGS.forEach((b,i)=>{if(b.e)markBug(i);});buildBugs();
+
+/* 路徑圖 */
+(function(){const t=(x,y,s,c='#0A1045',fs=14,w=700)=>`<text x="${x}" y="${y}" text-anchor="middle" font-size="${fs}" font-weight="${w}" fill="${c}">${s}</text>`;
+  const box=(x,y,s,c)=>`<rect x="${x-34}" y="${y-16}" width="68" height="32" rx="8" fill="#fff" stroke="${c}" stroke-width="2"/>`+t(x,y+5,s,c);
+  const ar=(x1,y1,x2,y2,c)=>{const a=Math.atan2(y2-y1,x2-x1),h=9;return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${c}" stroke-width="2"/><path d="M${x2} ${y2}L${x2-h*Math.cos(a-0.4)} ${y2-h*Math.sin(a-0.4)}L${x2-h*Math.cos(a+0.4)} ${y2-h*Math.sin(a+0.4)}Z" fill="${c}"/>`;};
+  let g=t(105,22,'調節','#4B32B8',16,900)+box(40,130,'X','#0A1045')+box(170,130,'Y','#0A1045')+box(105,60,'W','#6C4BEF')+ar(74,130,136,130,'#0A1045')+ar(105,76,105,126,'#6C4BEF')+t(105,175,'W 改變箭頭的強度','#555B7A',13,500);
+  g+=t(315,22,'中介','#A3127B',16,900)+box(250,130,'X','#0A1045')+box(380,130,'Y','#0A1045')+box(315,60,'M','#D61FA3')+ar(266,114,295,78,'#D61FA3')+ar(335,78,364,114,'#D61FA3')+ar(284,130,346,130,'#0A1045')+t(315,175,'X 透過 M 影響 Y','#555B7A',13,500);
+  $('pathFig').innerHTML=g;})();
+
+/* ================= 分頁 ================= */
+const NT=8,tabs=document.querySelectorAll('nav.tabs button');
+function setTab(n,keepScroll){
+  st.tab=n;tabs.forEach(b=>b.setAttribute('aria-selected',b.dataset.tab==n));
+  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('on',p.dataset.panel==n));
+  $('main').classList.toggle('full',n===NT);
+  const is3=n===4&&st.dim===3,is7=n===7;
+  svg.toggleAttribute('hidden',is3||is7);svg3.toggleAttribute('hidden',!is3);$('apaWrap').hidden=!is7;
+  $('hint2d').hidden=n>3;$('hint2dB').hidden=!(n===4&&st.dim===2);$('hint3d').hidden=!is3;
+  $('presetA').hidden=n>3;$('presetB').hidden=!(n===4||n===5||n===7);
+  svg.style.cursor=setKey()?'crosshair':'default';
+  if(!is3)cancelAnimationFrame(V3.anim);
+  render();if(!keepScroll){window.scrollTo({top:0});document.querySelector('.side').scrollTop=0;}
+}
+tabs.forEach(b=>b.addEventListener('click',()=>setTab(+b.dataset.tab)));
+document.querySelector('nav.tabs').addEventListener('keydown',e=>{if(e.key!=='ArrowRight'&&e.key!=='ArrowLeft')return;let n=st.tab+(e.key==='ArrowRight'?1:-1);n=(n-1+NT)%NT+1;setTab(n);tabs[n-1].focus();});
+
+/* ================= 自我檢測 ================= */
+const QUIZ=[
+ {q:'模型 ŷ = b₀ + b₁X + b₂W + b₃XW 中，b₃ = 0.10（X：延遲分鐘，W：每月訂購次數）。意思是？',o:['延遲每多 1 分鐘，滿意度提高 0.10 分','每月多訂 1 次，延遲對滿意度的斜率增加 0.10（變得比較不負）','訂購次數解釋了 10% 的變異','熟客的滿意度平均高 0.10 分'],a:1,
+  e:'b₃ 是「斜率的斜率」：W 每多 1 單位，X 的簡單斜率改變 b₃。斜率原本是負的，加上正的 b₃ 就變得比較平。'},
+ {q:'類別調節模型（W = 1 會員、0 非會員）中，b₂ = 0.76。下列解讀何者正確？',o:['會員的平均滿意度比非會員高 0.76 分','會員的斜率比非會員大 0.76','延遲 0 分鐘（準時）時，會員比非會員高 0.76 分','會員身分沒有調節效果'],a:2,
+  e:'有交互作用項時，b₂ 只是 X = 0 那一點的組間差。不同延遲下，兩組差距並不相同，這正是交互作用的意思（第 3 頁）。'},
+ {q:'把 X 和 W 平均數中心化後，下列何者「不會」改變？',o:['b₁','b₂','X 和 X × W 的 VIF','b₃ 和它的 t 值'],a:3,
+  e:'中心化只是換了原點：b₁、b₂ 的意義改變，相乘項和主效果的相關變小，所以 VIF 下降；但交互作用項的係數、t 值和 R² 都不變（第 5 頁）。'},
+ {q:'「調節」和「中介」最主要的差別是？',o:['調節問「X 對 Y 的效果在誰身上比較強」；中介問「X 透過什麼影響 Y」','調節一定要用類別變數，中介一定要用連續變數','調節要用 SEM，中介只能用迴歸','兩者是同一件事，只是名稱不同'],a:0,
+  e:'調節變數 W 改變 X→Y 箭頭的強度；中介變數 M 位在 X 和 Y 中間，是 X 造成的結果，再去影響 Y（第 6 頁）。'},
+ {q:'熟客組延遲的斜率 p = .07，新客組 p < .001。可以下結論說「熟客身分有調節效果」嗎？',o:['可以，因為一組顯著、一組不顯著','可以，因為兩個 p 值差很多','不行，要直接檢定兩組斜率的差（b₃），兩個 p 值的對比不等於差異顯著','不行，因為熟客組樣本一定比較少'],a:2,
+  e:'「顯著」和「不顯著」之間的差異，本身不一定顯著。判斷調節要看交互作用項 b₃ 的檢定（第 6 頁迷思）。'},
+ {q:'同一筆資料中，為什麼交互作用常常比主效果難檢定出來？',o:['因為交互作用項一定不是常態分配','因為交互作用的效果通常比較小，估計也比較不穩定，需要更大的樣本','因為軟體不會算交互作用的 p 值','因為交互作用只能用在實驗設計'],a:1,
+  e:'第 6 頁的模擬可以看到：同樣的 n，交互作用的檢定力明顯低於主效果；樣本小時，估計值甚至可能正負號相反。'}
+];
+let answered={};
+function buildQuiz(){answered={};$('quizBox').innerHTML=QUIZ.map((q,i)=>`<div class="q" data-q="${i}"><h3>${i+1}. ${q.q}</h3><div class="opts">${q.o.map((o,j)=>`<button data-j="${j}">${'ABCD'[j]}. ${o}</button>`).join('')}</div><div class="exp"></div></div>`).join('');$('score').textContent='';}
+$('quizBox').addEventListener('click',e=>{const b=e.target.closest('button');if(!b)return;const box=b.closest('.q'),i=+box.dataset.q;if(answered[i]!==undefined)return;
+  const j=+b.dataset.j,q=QUIZ[i];answered[i]=j===q.a;box.querySelectorAll('button').forEach((x,k)=>{if(k===q.a)x.classList.add('right');else if(k===j)x.classList.add('wrong');});
+  const ex=box.querySelector('.exp');ex.classList.add('on');ex.innerHTML=`<strong>${j===q.a?'答對了。':'這題很多人會選錯，正確答案是 '+'ABCD'[q.a]+'。'}</strong> ${q.e}`;
+  if(Object.keys(answered).length===QUIZ.length){const c=Object.values(answered).filter(Boolean).length;$('score').textContent=`完成！答對 ${c} / ${QUIZ.length} 題。`+(c<QUIZ.length?' 回到對應的分頁再操作一次，會更有感覺。':'');}});
+$('quizReset').onclick=buildQuiz;
+
+/* ================= 16:9 縮放與全螢幕 ================= */
+const app=$('app');
+function fitStage(){const on=window.innerWidth>=900&&window.innerWidth/window.innerHeight>=1.15;document.body.classList.toggle('stage',on);document.documentElement.style.fontSize=on?'22px':'';
+  if(on){const k=Math.min(window.innerWidth/1920,window.innerHeight/1080);app.style.transform=`scale(${k})`;app.style.left=((window.innerWidth-1920*k)/2)+'px';app.style.top=((window.innerHeight-1080*k)/2)+'px';}else{app.style.transform='';app.style.left='';app.style.top='';}}
+window.addEventListener('resize',fitStage);fitStage();
+function toggleFS(){if(!document.fullscreenElement)document.documentElement.requestFullscreen?.();else document.exitFullscreen?.();}
+$('fsBtn').onclick=toggleFS;
+document.addEventListener('fullscreenchange',()=>{$('fsBtn').textContent=document.fullscreenElement?'離開全螢幕':'全螢幕';setTimeout(fitStage,50);});
+document.addEventListener('keydown',e=>{if((e.key==='f'||e.key==='F')&&!/INPUT|TEXTAREA|SELECT/.test(document.activeElement.tagName)&&!e.ctrlKey&&!e.metaKey){e.preventDefault();toggleFS();}});
+
+buildQuiz();refit();
+window.__jodus={st,anaA,anaB,ols,genA,genB,PRE,runSim,setTab,V3,render};
+window.addEventListener('load',()=>{if(window.renderMathInElement)renderMathInElement(document.body,{delimiters:[{left:'$$',right:'$$',display:true},{left:'$',right:'$',display:false}],throwOnError:false});});
+})();
+</script>
+</body>
+</html>
